@@ -52,7 +52,7 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDR_Application           ICON    DISCARDABLE     "Main_32X32.ico"
+IDR_Application           ICON    DISCARDABLE     "exe_aftpx.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
