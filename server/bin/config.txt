@@ -1,0 +1,38 @@
+#aftpx server config file
+
+[globals]
+#全局发送限速, B/s
+max_sendspeed=102400
+
+[tcp]
+port=21
+
+[ssl]
+port=990
+prot=1
+cert=.\server.p12
+password=123456
+
+#############################
+#接入帐号配置: anonymous
+[anonymous]
+#会话发送限速, B/s
+max_sendspeed=-1
+
+#密码
+password=123456
+
+#目录
+home=D:\workplat\src\appframe\doc
+
+
+#接入帐号配置: alex
+[alex]
+#会话发送限速, B/s
+max_sendspeed=-1
+
+#密码
+password=123456
+
+#目录
+home=D:\workplat\src\appframe\doc
