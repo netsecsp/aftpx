@@ -141,7 +141,7 @@ public:
             }
 
             CComPtr<IAsynRawSocket        > spAsynPtlSocket;
-            m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("ftp"), (IUnknown **)&spAsynSslSocket.p, STRING_from_string("ssl"), &spAsynPtlSocket);
+            m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("ftp"), (IUnknown **)&spAsynSslSocket.p, STRING_from_string(m_setsfile.get_string("ssl", "algo", "tls/1.0")), &spAsynPtlSocket);
             if( spAsynPtlSocket == NULL )
             {
                 printf("can't load plugin: ftp\n");

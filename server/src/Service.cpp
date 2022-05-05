@@ -63,7 +63,7 @@ HRESULT CService::OnQueryResult( uint64_t lparam1, uint64_t lparam2, IKeyvalSett
     if((ipos=d.m_val.rfind("ftp.stat"   )) != std::string::npos)
     {
         static const char *stat = "Copyright (c) netsecsp 2012-2032, All rights reserved.\n"
-                                  "Developer: Shengqian Yang, from China, E-mail: netsecsp@hotmail.com, last updated "STRING_UPDATETIME"\n"
+                                  "Developer: Shengqian Yang, from China, E-mail: netsecsp@hotmail.com, last updated " STRING_UPDATETIME "\n"
                                   "http://aftpx.sf.net";
 
         ppKeyval[0]->Set(STRING_from_string(";context"), 0, STRING_from_string(stat));

@@ -117,10 +117,6 @@ END_ASYN_IOERROR()
 #define CT_GetAppSpeedController        ( 0)
 
 /////////////////////////////////////////////////////////////////////////////////
-//IAsynIoOperationFactory.CreateAsynIoOperation(lType)
-#define BT_SharedMemoryBuffer           ( 1) //共享内存
-
-/////////////////////////////////////////////////////////////////////////////////
 //IAsynIoOperation.IObjectHolder(lType)
 #define OT_SetAsynIoOperation           ( 0) //设置顶级IAsynIoOperation
 #define OT_TakeBindIoOperation          ( 0) //获取绑定IAsynIoOperation
@@ -166,6 +162,17 @@ END_ASYN_IOERROR()
 #define DT_GetAsynDnsResolver           ( 8)
 
 /////////////////////////////////////////////////////////////////////////////////
+//IAsynIoBridge.IObjectHolder(lType)
+#define BT_GetSource                    ( 0) //获取源IAsynIoDevice
+#define BT_GetTarget                    ( 1)
+#define BT_GetSourceIoOperation         ( 2) //获取读IAsynIoOperation
+#define BT_GetTargetIoOperation         ( 3) //获取写IAsynIoOperation
+
+/////////////////////////////////////////////////////////////////////////////////
+//IAsynIoOperationFactory.CreateAsynIoOperation(lType)
+#define BT_SharedMemoryBuffer           ( 1) //共享内存
+
+/////////////////////////////////////////////////////////////////////////////////
 //IAsynIoDevice.Attach(lType)
 #define DA_PortHandle                   ( 0) //主动激活句柄
 #define DA_PasvHandle                   ( 1) //被动激活句柄
@@ -176,36 +183,28 @@ END_ASYN_IOERROR()
 #define DN_Pipe                         ("pipe"    ) //管道
 #define DN_Device                       ("device"  ) //设备
 #define DN_Socket                       ("socket"  ) //网络套接字
-#define DN_Tunnel                       ("tunnel"  ) //隧道
 #define DN_Icmp                         ("icmp"    )
-
-/////////////////////////////////////////////////////////////////////////////////
-//IAsynIoBridge.IObjectHolder(lType)
-#define BT_GetSource                    ( 0) //获取源IAsynIoDevice
-#define BT_GetTarget                    ( 1)
-#define BT_GetSourceIoOperation         ( 2) //获取读IAsynIoOperation
-#define BT_GetTargetIoOperation         ( 3) //获取写IAsynIoOperation
+#define DN_Tunnel                       ("tunnel"  ) //隧道
 
 /////////////////////////////////////////////////////////////////////////////////
 //IAsynFrameThread.BindAsynIoOperation(lMode):以下值可以自由组合
-#define BM_Nolink                       (0x80000000) //不做关联
-#define BM_ResetOptimer                 (0x40000000) //移除Op 定时器
 #define BM_Oneway                       (0x00000001) //单向关联:1-只能允许front.cancel事件传递/0-允许front.cancel/self事件传递, 不能跟BM_Result|BM_Calcio|BM_Onlyec联合使用
-#define BM_ExBuff                       (0x00000002) //间接引用数据Buffer, SetExtraBuffer(0, Buffer)
+#define BM_ExBuff                       (0x00000002) //间接引用数据Buffer, SetExtraBuffer(-1, Buffer)
 #define BM_Result                       (0x00000004) //拷贝:Result/errors
 #define BM_Calcio                       (0x00000008) //计算:IoArea
 #define BM_Onlyec                       (0x00000010) //当BM_Onlyec=1时表示不传递Result
 #define BM_OsAddr                       (0x00010000) //直接引用地址Buffer
 #define BM_IoBuff                       (0x00020000) //直接引用数据Buffer
 #define BM_Device                       (0x00040000) //传递:Device
-#define BM_Copyio                       (0x00080000) //拷贝:IoArea, 一般跟BM_ExBuff组合
+#define BM_Copyio                       (0x00080000) //拷贝:IoArea
+#define BM_Nolink                       (0x40000000) //不做关联
+#define BM_ResetOptimer                 (0x80000000) //移除Op定时器
 
 /////////////////////////////////////////////////////////////////////////////////
 //IAsynIoOperation.GetOsBuffer(index)
 #define OB_OsOverlapped                 ( 0) //Overlapped
 #define OB_OsAddr                       ( 1) //OsAddr
 #define OB_IoArea                       ( 2) //IoArea
-#define OB_Result                       ( 3) //Result
 
 #pragma pack(push, 1)
 /////////////////////////////////////////////////////////////////////////////////
@@ -214,7 +213,7 @@ typedef struct tag_OSBUFFER_IOAREA
     uint32_t lTransferedBytes; //完成传输长度(r/w)
     uint32_t lReserved; //可由用户控制，比如传输密文时，设置明文长度(r/w)
     uint32_t lSumBytes; //期望传输长度(r/w)
-    uint32_t lMinBytes; //至少传输长度(r/w)
+    uint32_t lMinBytes; //至少传输长度(r/w), 要求lMinBytes<=lSumBytes
     uint32_t lUseIoNum; //(r/w)
     uint32_t lMaxIoNum; //(r)
     STRING  *iovectors; //(r)

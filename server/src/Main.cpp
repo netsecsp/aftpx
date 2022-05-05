@@ -45,10 +45,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 #ifdef AAPIDLL_USING
-#pragma comment(lib,"asynsdk_mini.lib")
-#pragma comment(lib,"asyncore_dll.lib")
+#ifdef _DEBUG
+#pragma comment(lib, "asynsdk_mini-MDd.lib")
 #else
-#pragma comment(lib,"asynframe_lib.lib")
+#pragma comment(lib, "asynsdk_mini-MD.lib")
+#endif
+#pragma comment(lib, "asyncore_dll.lib")
+#else
+#pragma comment(lib, "asynframe_lib.lib")
 #endif
 STDAPI_(extern HRESULT) Initialize( /*[in ]*/IAsynMessageEvents* param1, /*[in ]*/IKeyvalSetter* param2 );
 STDAPI_(extern HRESULT) Destory();
@@ -57,7 +61,7 @@ STDAPI_(extern InstancesManager *) GetInstancesManager();
 int _tmain(int argc, _TCHAR *argv[])
 {
     printf("Copyright (c) netsecsp 2012-2032, All rights reserved.\n");
-    printf("Developer: Shengqian Yang, from China, E-mail: netsecsp@hotmail.com, last updated "STRING_UPDATETIME"\n");
+    printf("Developer: Shengqian Yang, from China, E-mail: netsecsp@hotmail.com, last updated " STRING_UPDATETIME "\n");
     printf("http://aftpx.sf.net\n\n");
 
     printf("usage: %s -4/6\n\texample: %s -4\nplease check config.txt\n\n", argv[0], argv[0]);
