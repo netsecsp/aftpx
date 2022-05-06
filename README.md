@@ -11,6 +11,6 @@ aftpxclient.exe
 	4.support download from offset 
 
 aftpxserver.exe 
-	supports IPv4/IPv6 ftp/ftps server program under windows  
+	supports IPv4/IPv6 ftp/ftps server program under windows 
 	1.support download directory 
 	2.support download from offset 
