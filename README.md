@@ -1,5 +1,5 @@
-Copyright (c) 2012 - 2016, All rights reserved.  
-Author: Shengqian Yang, China, netsecsp@hotmail.com, last updated 05/01/2022 
+Copyright (c) 2012 - 2032, All rights reserved.  
+Author: Shengqian Yang, China, netsecsp@hotmail.com, last updated 05/05/2022 
 
 asynsdk_1.0.0.0_20220505.zip is from http://asynframe.sf.net  
 
