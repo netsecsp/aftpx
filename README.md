@@ -1,4 +1,4 @@
-> asynframe-sdk_1.0_20220505.zip is from https://github.com/netsecsp/asynframe  
+> asynframe-sdk_20220505.zip is from https://github.com/netsecsp/asynframe  
 
 # aftpxclient.exe 
 supports IPv4/IPv6 ftp/ftps client program under windows 
