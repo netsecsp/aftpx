@@ -23,7 +23,7 @@ max_sendspeed=-1
 password=123456
 
 #目录
-home=D:\workplat\src\appframe\doc
+home=.\root
 
 
 #接入帐号配置: alex
@@ -35,4 +35,4 @@ max_sendspeed=-1
 password=123456
 
 #目录
-home=D:\workplat\src\appframe\doc
+home=.\root
