@@ -81,7 +81,7 @@ HRESULT CDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoO
     printf("connect %s:%d[%s]\n", host.m_val.c_str(), port, m_af == AF_INET ? "ipv4" : "ipv6");
 
     lpAsynIoOperation->GetCompletedObject(1, IID_INetmsg, (void **)&spNetmsg);
-    spNetmsg->Getline(&Status, &Params, 0);
+    spNetmsg->Getline(&Status, &Params, 0, 0 );
     status = string_from_STRING(Status);
     params = string_from_STRING(Params);
     printf("recv stat ack: %s %s\n", status.c_str(), params.c_str());
@@ -103,7 +103,7 @@ HRESULT CDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoO
         return S_OK;
     }
     lpAsynIoOperation->GetCompletedObject(1, IID_INetmsg, (void **)&spNetmsg);
-    spNetmsg->Getline(&Status, &Params, 0);
+    spNetmsg->Getline(&Status, &Params, 0, 0 );
     status = string_from_STRING(Status);
     params = string_from_STRING(Params);
     printf("recv user ack: %s %s\n", status.c_str(), params.c_str());
@@ -127,7 +127,7 @@ HRESULT CDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoO
                 return E_NOTIMPL;
             }
             lpAsynIoOperation->GetCompletedObject(1, IID_INetmsg, (void **)&spNetmsg);
-            spNetmsg->Getline(&Status, &Params, 0);
+            spNetmsg->Getline(&Status, &Params, 0, 0 );
             status = string_from_STRING(Status);
             params = string_from_STRING(Params);
             printf("recv pass ack: %s %s\n", status.c_str(), params.c_str());
@@ -152,7 +152,7 @@ HRESULT CDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoO
             return E_NOTIMPL;
         }
         lpAsynIoOperation->GetCompletedObject(1, IID_INetmsg, (void **)&spNetmsg);
-        spNetmsg->Getline(&Status, &Params, 0);
+        spNetmsg->Getline(&Status, &Params, 0, 0 );
         status = string_from_STRING(Status);
         params = string_from_STRING(Params);
         printf("recv pbsz ack: %s %s\n", status.c_str(), params.c_str());
@@ -173,7 +173,7 @@ HRESULT CDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoO
             return E_NOTIMPL;
         }
         lpAsynIoOperation->GetCompletedObject(1, IID_INetmsg, (void **)&spNetmsg);
-        spNetmsg->Getline(&Status, &Params, 0);
+        spNetmsg->Getline(&Status, &Params, 0, 0 );
         status = string_from_STRING(Status);
         params = string_from_STRING(Params);
         printf("recv prot ack: %s %s\n", status.c_str(), params.c_str());
@@ -197,7 +197,7 @@ HRESULT CDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoO
             return E_NOTIMPL;
         }
         lpAsynIoOperation->GetCompletedObject(1, IID_INetmsg, (void **)&spNetmsg);
-        spNetmsg->Getline(&Status, &Params, 0);
+        spNetmsg->Getline(&Status, &Params, 0, 0 );
         status = string_from_STRING(Status);
         params = string_from_STRING(Params);
         printf("recv cwd  ack: %s %s\n", status.c_str(), params.c_str());
@@ -225,7 +225,7 @@ HRESULT CDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoO
             return E_NOTIMPL;
         }
         lpAsynIoOperation->GetCompletedObject(1, IID_INetmsg, (void **)&spNetmsg);
-        spNetmsg->Getline(&Status, &Params, 0);
+        spNetmsg->Getline(&Status, &Params, 0, 0 );
         status = string_from_STRING(Status);
         params = string_from_STRING(Params);
         printf("recv size ack: %s %s\n", status.c_str(), params.c_str());
@@ -255,7 +255,7 @@ HRESULT CDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoO
         return E_NOTIMPL;
     }
     lpAsynIoOperation->GetCompletedObject(1, IID_INetmsg, (void **)&spNetmsg);
-    spNetmsg->Getline(&Status, &Params, 0);
+    spNetmsg->Getline(&Status, &Params, 0, 0 );
     status = string_from_STRING(Status);
     params = string_from_STRING(Params);
     printf("recv type ack: %s %s\n", status.c_str(), params.c_str());
@@ -368,7 +368,7 @@ HRESULT CDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoO
             return E_NOTIMPL;
         }
         lpAsynIoOperation->GetCompletedObject(1, IID_INetmsg, (void **)&spNetmsg);
-        spNetmsg->Getline(&Status, &Params, 0);
+        spNetmsg->Getline(&Status, &Params, 0, 0 );
         status = string_from_STRING(Status);
         params = string_from_STRING(Params);
         printf("recv %s ack: %s %s\n", m_af == AF_INET ? "pasv" : "epsv", status.c_str(), params.c_str());
@@ -511,7 +511,7 @@ HRESULT CDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoO
             return E_NOTIMPL;
         }
         lpAsynIoOperation->GetCompletedObject(1, IID_INetmsg, (void **)&spNetmsg);
-        spNetmsg->Getline(&Status, &Params, 0);
+        spNetmsg->Getline(&Status, &Params, 0, 0 );
         status = string_from_STRING(Status);
         params = string_from_STRING(Params);
         printf("recv list ack: %s %s\n", status.c_str(), params.c_str());
@@ -544,7 +544,7 @@ HRESULT CDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoO
             return E_NOTIMPL;
         }
         lpAsynIoOperation->GetCompletedObject(1, IID_INetmsg, (void **)&spNetmsg);
-        spNetmsg->Getline(&Status, &Params, 0);
+        spNetmsg->Getline(&Status, &Params, 0, 0 );
         status = string_from_STRING(Status);
         params = string_from_STRING(Params);
         printf("recv retr ack: %s %s\n", status.c_str(), params.c_str());
@@ -586,7 +586,7 @@ HRESULT CDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoO
         return E_NOTIMPL;
     }
     lpAsynIoOperation->GetCompletedObject(1, IID_INetmsg, (void **)&spNetmsg);
-    spNetmsg->Getline(&Status, &Params, 0);
+    spNetmsg->Getline(&Status, &Params, 0, 0 );
     status = string_from_STRING(Status);
     params = string_from_STRING(Params);
     printf("recv retr ack: %s %s\n", status.c_str(), params.c_str());
