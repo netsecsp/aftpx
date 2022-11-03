@@ -23,8 +23,7 @@ max_sendspeed=-1
 password=123456
 
 #目录
-home=.\root
-
+home=c:\
 
 #接入帐号配置: alex
 [alex]
@@ -35,4 +34,4 @@ max_sendspeed=-1
 password=123456
 
 #目录
-home=.\root
+home=c:\
