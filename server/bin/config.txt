@@ -1,7 +1,7 @@
-#aftpx server config file
-
+#aftpx server configure file
+#############################
 [globals]
-#È«¾Ö·¢ËÍÏŞËÙ, B/s
+#å…¨å±€å‘é€é™é€Ÿ, B/s
 max_sendspeed=102400
 
 [tcp]
@@ -14,24 +14,24 @@ cert=.\server.p12
 password=123456
 
 #############################
-#½ÓÈëÕÊºÅÅäÖÃ: anonymous
+#æ¥å…¥å¸å·é…ç½®: anonymous
 [anonymous]
-#»á»°·¢ËÍÏŞËÙ, B/s
+#ä¼šè¯å‘é€é™é€Ÿ, B/s
 max_sendspeed=-1
 
-#ÃÜÂë
+#å¯†ç 
 password=123456
 
-#Ä¿Â¼
-home=c:\
+#ç›®å½•
+home=D:\workplat\src\appframe\doc
 
-#½ÓÈëÕÊºÅÅäÖÃ: alex
+#æ¥å…¥å¸å·é…ç½®: alex
 [alex]
-#»á»°·¢ËÍÏŞËÙ, B/s
+#ä¼šè¯å‘é€é™é€Ÿ, B/s
 max_sendspeed=-1
 
-#ÃÜÂë
+#å¯†ç 
 password=123456
 
-#Ä¿Â¼
-home=c:\
+#ç›®å½•
+home=D:\workplat\src\appframe\doc

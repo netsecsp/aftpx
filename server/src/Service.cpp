@@ -50,7 +50,10 @@ HRESULT CService::OnQueryResult( uint64_t lparam1, uint64_t lparam2, IKeyvalSett
     {// cert.get
         if( m_cert_p12.empty()) return S_FALSE;
         ISsl *pSsl = (ISsl *)lparam2;
-        pSsl->SetCryptContext(0, 0, &STRING_from_string(m_cert_p12), &STRING_from_string(m_password));
+        STRING certandpasswd[2];
+        certandpasswd[0] = STRING_from_string(m_cert_p12);
+        certandpasswd[1] = STRING_from_string(m_password);
+        pSsl->SetCryptContext(0, 0, certandpasswd);
         ppKeyval[0]->Set(STRING_from_string(";version"), 0, STRING_from_string(m_setsfile.get_string("ssl", "algo", "tls/1.0")));
         return S_OK;
     }
@@ -127,7 +130,7 @@ HRESULT CService::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoOper
             {// 控制连接接入成功
                 m_spAsynTcpSocketListener[lParam1]->Accept(lpAsynIoOperation);
 
-                char skey[64]; sprintf(skey, "%s:%d", host.c_str(), port);
+                char skey[64]; sprintf_s(skey, 64, "%s:%d", host.c_str(), port);
                 userinfo &info = m_arId2Userinfos[ skey ];
                 info.skey = skey;
                 info.utf8 = true;
@@ -363,7 +366,7 @@ HRESULT CService::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoOper
                     filesize.LowPart = ::GetFileSize(hFile, (LPDWORD)&filesize.HighPart);
                     ::CloseHandle( hFile );
                     char out[32];
-                    _i64toa(filesize.QuadPart, out, 10);
+                    _i64toa_s(filesize.QuadPart, out, sizeof(out), 10);
                     info->spCtrlTcpSocket->SendPacket(STRING_from_string("213"), STRING_from_string(out), 0, 0);
                 }
                 return info->spCtrlTcpSocket->Read(lpAsynIoOperation);
@@ -413,8 +416,7 @@ HRESULT CService::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoOper
                 info->spCtrlTcpSocket->GetSockAddress(&temp, 0, 0, 0);
                 info->spDataTcpSocketListener->GetSockAddress(0, 0, &port, 0);
                 //格式化EPSV响应命令参数
-                char tmpx[128];
-                sprintf(tmpx, "Entering Extended Passive Mode (|||%d|)", port);
+                char tmpx[128]; sprintf_s(tmpx, 128, "Entering Extended Passive Mode (|||%d|)", port);
                 //发送响应
                 info->spCtrlTcpSocket->SendPacket(STRING_from_string("229"), STRING_from_string(tmpx), 0, 0);
 
@@ -461,7 +463,7 @@ HRESULT CService::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoOper
                     data[ipos] = ',';
                     ipos = data.find('.', ipos);
                 }
-                char tmpx[32]; sprintf(tmpx, ",%d,%d", port / 256, port % 256);
+                char tmpx[32]; sprintf_s(tmpx, 32, ",%d,%d", port / 256, port % 256);
                 data += tmpx;
                 data += ")";
                 //发送响应
@@ -605,15 +607,15 @@ void CService::MakeListResult(const std::string &path, std::string &o_val)
         }
 
         SYSTEMTIME st; FileTimeToSystemTime(&data.ftLastWriteTime, &st);
-        int offset = sprintf(temp, "%04d-%02d-%02d %02d:%02d:%02d", st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
+        int offset = sprintf_s(temp, 1024, "%04d-%02d-%02d %02d:%02d:%02d", st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
 
         if( data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY )
         {
-            sprintf(temp + offset, "\t%-20s\t%s\n", "<DIR>", data.cFileName);
+            sprintf_s(temp + offset, 1024 - offset, "\t%-20s\t%s\n", "<DIR>", data.cFileName);
         }
         else
         {
-            sprintf(temp + offset, "\t%20I64d\t%s\n", (((uint64_t)data.nFileSizeHigh) << 32) + data.nFileSizeLow, data.cFileName);
+            sprintf_s(temp + offset, 1024 - offset, "\t%20I64d\t%s\n", (((uint64_t)data.nFileSizeHigh) << 32) + data.nFileSizeLow, data.cFileName);
         }
 
         o_val += temp;

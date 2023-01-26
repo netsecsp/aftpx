@@ -75,7 +75,7 @@ public:
         }
         std::string schema = url.substr(0, pos1);
         pos1 += 3/*skip "://" */;
-        strlwr((char *)schema.c_str());
+        _strlwr_s((char *)schema.c_str(), schema.size());
         if( schema != "ftp" &&
             schema != "ftps" )
         {
@@ -195,7 +195,7 @@ public:
                 
                 asynsdk::CKeyvalSetter params(1);
                 params.Set(STRING_from_string(";account"), 1, STRING_from_string(m_setsfile.get_string("proxy", "user") + ":" + m_setsfile.get_string("proxy", "password")));
-                HRESULT r1 = spProxy->SetProxyContext(STRING_from_string(m_setsfile.get_string("proxy", "host", "127.0.0.1")), schema == "ftp" || ssl_explicit != 0? m_setsfile.get_long("proxy", "port", 2121) : m_setsfile.get_long("proxy", "port_2", 2990), STRING_EX::null, &params);
+                HRESULT r1 = spProxy->SetProxyContext(STRING_from_string(m_setsfile.get_string("proxy", "host", "127.0.0.1")), schema == "ftp" || ssl_explicit != 0? (PORT)m_setsfile.get_long("proxy", "port", 2121) : (PORT)m_setsfile.get_long("proxy", "port_2", 2990), STRING_EX::null, &params);
 
                 spAsynTmpSocket->QueryInterface(IID_INet, (void **)&m_spCtrlTcpSocket);
                 m_bssl = false;
@@ -217,7 +217,7 @@ public:
                 {
                     asynsdk::CKeyvalSetter params(1);
                     params.Set(STRING_from_string(";account"), 1, STRING_from_string(m_setsfile.get_string("proxy", "user") + ":" + m_setsfile.get_string("proxy", "password")));
-                    HRESULT r1 = spProxy->SetProxyContext(STRING_from_string(m_setsfile.get_string("proxy", "host", "127.0.0.1")), m_setsfile.get_long("proxy", "port", 8080), STRING_EX::null, &params);
+                    HRESULT r1 = spProxy->SetProxyContext(STRING_from_string(m_setsfile.get_string("proxy", "host", "127.0.0.1")), (PORT)m_setsfile.get_long("proxy", "port", 8080), STRING_EX::null, &params);
 					CComPtr<IHttpTxTunnel> spDataTxTunnel; spProxy->QueryInterface(IID_IHttpTxTunnel, (void **)&spDataTxTunnel);
                     spDataTxTunnel->SetEnabled(1); //强制直接代理
                 }
@@ -225,7 +225,7 @@ public:
                 {
                     asynsdk::CKeyvalSetter params(1);
                     params.Set(STRING_from_string(";account"), 1, STRING_from_string(m_setsfile.get_string("proxy", "user") + ":" + m_setsfile.get_string("proxy", "password")));
-                    HRESULT r1 = spProxy->SetProxyContext(STRING_from_string(m_setsfile.get_string("proxy", "host", "127.0.0.1")), m_setsfile.get_long("proxy", "port", 1080), STRING_EX::null, &params);
+                    HRESULT r1 = spProxy->SetProxyContext(STRING_from_string(m_setsfile.get_string("proxy", "host", "127.0.0.1")), (PORT)m_setsfile.get_long("proxy", "port", 1080), STRING_EX::null, &params);
                 }
 
                 CComPtr<IAsynRawSocket> spAsynPtlSocket;

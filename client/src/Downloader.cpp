@@ -281,7 +281,7 @@ HRESULT CDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoO
                 spAsynPtlSocket->QueryInterface(IID_IAsynProxySocket, (void **)&spProxy);
                 asynsdk::CKeyvalSetter    params(1);
                 params.Set(STRING_from_string(";account"), 1, STRING_from_string(m_setsfile.get_string("proxy", "user") + ":" + m_setsfile.get_string("proxy", "password")));
-                HRESULT r1 = spProxy->SetProxyContext(STRING_from_string(m_setsfile.get_string("proxy", "host", "127.0.0.1")), m_setsfile.get_long("proxy", "port", 1080), STRING_EX::null, &params);
+                HRESULT r1 = spProxy->SetProxyContext(STRING_from_string(m_setsfile.get_string("proxy", "host", "127.0.0.1")), (PORT)m_setsfile.get_long("proxy", "port", 1080), STRING_EX::null, &params);
 
                 spDataTcpSocketListener = 0;
                 HRESULT r2 = spProxy->QueryInterface( IID_IAsynTcpSocketListener, (void **)&spDataTcpSocketListener);
@@ -317,7 +317,7 @@ HRESULT CDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoO
 
         if( m_af != AF_INET )
 		{// ipv6
-            sprintf(temp, "|2|%s|%d|", host.m_val.c_str(), port);
+            sprintf_s(temp, 64, "|2|%s|%d|", host.m_val.c_str(), port);
             printf("send eprt req: EPRT %s\n", temp);
             m_spCtrlTcpSocket->SendPacket(STRING_from_string("EPRT"), STRING_from_string(temp), 0, 0);
         }
@@ -330,7 +330,7 @@ HRESULT CDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoO
                 ipos = host.m_val.find('.', ipos);
             }
 
-            sprintf(temp, "%s,%d,%d", host.m_val.c_str(), port / 256, port % 256);
+            sprintf_s(temp, 64, "%s,%d,%d", host.m_val.c_str(), port / 256, port % 256);
             printf("send port req: PORT %s\n", temp);
             m_spCtrlTcpSocket->SendPacket(STRING_from_string("PORT"), STRING_from_string(temp), 0, 0);
         }
@@ -397,8 +397,8 @@ HRESULT CDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoO
         if( m_af == AF_INET )
 		{// ipv4
             uint32_t a, b, c, d, h, l;
-            sscanf(hostport.c_str(), "(%d,%d,%d,%d,%d,%d)", &a, &b, &c, &d, &h, &l);
-            sprintf(temp, "%d.%d.%d.%d", a, b, c, d);
+            sscanf_s(hostport.c_str(), "(%d,%d,%d,%d,%d,%d)", &a, &b, &c, &d, &h, &l);
+            sprintf_s(temp, 64, "%d.%d.%d.%d", a, b, c, d);
 
             host.m_val = temp;
             port = h * 256 + l;
@@ -453,13 +453,13 @@ HRESULT CDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoO
                 params.Set(STRING_from_string(";account"), 0, STRING_from_string(m_setsfile.get_string("proxy", "user") + ":" + m_setsfile.get_string("proxy", "password")));
                 if( m_prxyname == "http" )
                 {
-                    spProxy->SetProxyContext(STRING_from_string(m_setsfile.get_string("proxy", "host", "127.0.0.1")), m_setsfile.get_long("proxy", "port", 8080), STRING_EX::null, &params);
+                    spProxy->SetProxyContext(STRING_from_string(m_setsfile.get_string("proxy", "host", "127.0.0.1")), (PORT)m_setsfile.get_long("proxy", "port", 8080), STRING_EX::null, &params);
 					CComPtr<IHttpTxTunnel> spDataTxTunnel; spProxy->QueryInterface(IID_IHttpTxTunnel, (void **)&spDataTxTunnel);
                     spDataTxTunnel->SetEnabled(1); //强制直接代理
                 }
                 else
                 {
-                    spProxy->SetProxyContext(STRING_from_string(m_setsfile.get_string("proxy", "host", "127.0.0.1")), m_setsfile.get_long("proxy", "port", 1080), STRING_EX::null, &params);
+                    spProxy->SetProxyContext(STRING_from_string(m_setsfile.get_string("proxy", "host", "127.0.0.1")), (PORT)m_setsfile.get_long("proxy", "port", 1080), STRING_EX::null, &params);
                 }
             }
 
@@ -526,7 +526,7 @@ HRESULT CDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoO
 	{ //下载文件
         if( m_startpos != 0 )
         {
-            _i64toa(m_startpos, temp, 10);
+            _i64toa_s(m_startpos, temp, sizeof(temp), 10);
             printf("send rest req: REST %s\n", temp);
             m_spCtrlTcpSocket->SendPacket(STRING_from_string("REST"), STRING_from_string(temp), 0, 0);
             crReturn(m_spCtrlTcpSocket->Read(lpAsynIoOperation));
