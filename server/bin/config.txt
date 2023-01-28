@@ -23,7 +23,7 @@ max_sendspeed=-1
 password=123456
 
 #目录
-home=D:\workplat\src\appframe\doc
+home=d:\www\ftp\anonymous
 
 #接入帐号配置: alex
 [alex]
@@ -34,4 +34,4 @@ max_sendspeed=-1
 password=123456
 
 #目录
-home=D:\workplat\src\appframe\doc
+home=d:\www\ftp\alex
