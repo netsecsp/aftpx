@@ -10,7 +10,7 @@ port=21
 [ssl]
 port=990
 prot=1
-cert=.\server.p12
+cert=server.p12
 password=123456
 
 #############################
@@ -23,7 +23,7 @@ max_sendspeed=-1
 password=123456
 
 #目录
-home=d:\www\ftp\anonymous
+home=d:\\www\\ftp\\anonymous
 
 #接入帐号配置: alex
 [alex]
@@ -34,4 +34,4 @@ max_sendspeed=-1
 password=123456
 
 #目录
-home=d:\www\ftp\alex
+home=d:\\www\\ftp\\alex

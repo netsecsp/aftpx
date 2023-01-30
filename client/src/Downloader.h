@@ -59,13 +59,14 @@ public: // interface of asyn_message_events_impl
 public:
     bool Start(const std::string &url, bool ssl_explicit, uint64_t startpos)
     {
-        m_spInstanceManager->Require(STRING_from_string(IN_AsynFileSystem), 0);
-        if( m_spInstanceManager->GetInstance(STRING_from_string(IN_AsynFileSystem), IID_IAsynFileSystem, (void **)&m_spAsynFileSystem) != S_OK )
+        if( m_spInstanceManager->Require(STRING_from_string(IN_AsynFileSystem)) != S_OK )
         {
             printf("can't load plugin: %s\n", IN_AsynFileSystem);
             return false;
         }
         
+        m_spInstanceManager->GetInstance(STRING_from_string(IN_AsynFileSystem), IID_IAsynFileSystem, (void **)&m_spAsynFileSystem);
+
         //url格式， protocol://[user:password@]host[:port]/path/[;parameters][?query]#fragment
         std::string::size_type pos1 = url.find("://");
         if( pos1 == std::string::npos )
