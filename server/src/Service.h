@@ -95,14 +95,13 @@ public:
             }
         }
 
-        CComPtr<IThreadPool> threadpool;
-        m_spInstanceManager->NewInstance(0, 1, IID_IThreadPool, (void**)&threadpool);
+        CComPtr<IThreadPool> threadpool; threadpool.Attach(asynsdk::CreateThreadPool(m_spInstanceManager, "iosthreadpool?size=4", TP_FixedThreadpool));
 
         PORT tcpport = (PORT)m_setsfile.get_long("tcp", "port", 21);
         if( tcpport )
         {// check [tcp]: 普通ftp 或 显式ftp over tls
             CComPtr<IAsynTcpSocketListener> spAsynInnSocketListener;
-            m_spAsynNetwork->CreateAsynTcpSocketListener(STRING_EX::null, &spAsynInnSocketListener);
+            m_spAsynNetwork->CreateAsynTcpSocketListener(0, &spAsynInnSocketListener);
 
             CComPtr<IAsynRawSocket        > spAsynPtlSocket;
             m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("ftp"), (IUnknown **)&spAsynInnSocketListener.p, STRING_from_string("tcp"), &spAsynPtlSocket);
@@ -132,7 +131,7 @@ public:
             sslport )
         {// check [ssl]: 隐式ftp over tls
             CComPtr<IAsynTcpSocketListener> spAsynInnSocketListener;
-            m_spAsynNetwork->CreateAsynTcpSocketListener(STRING_EX::null, &spAsynInnSocketListener);
+            m_spAsynNetwork->CreateAsynTcpSocketListener(0, &spAsynInnSocketListener);
 
             CComPtr<IAsynRawSocket        > spAsynSslSocket;
             m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("ssl"), (IUnknown **)&spAsynInnSocketListener.p, STRING_from_string(m_setsfile.get_string("ssl", "algo", "tls/1.0")), &spAsynSslSocket);

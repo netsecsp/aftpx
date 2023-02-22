@@ -396,7 +396,7 @@ HRESULT CService::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoOper
                 }
 
                 CComPtr<IAsynTcpSocketListener> spAsynTcpSocketListener;
-                m_spAsynNetwork->CreateAsynTcpSocketListener(STRING_EX::null, &spAsynTcpSocketListener);
+                m_spAsynNetwork->CreateAsynTcpSocketListener(0, &spAsynTcpSocketListener);
 
                 if( info->prot == "P" )
                 {
@@ -436,7 +436,7 @@ HRESULT CService::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoOper
                 }
 
                 CComPtr<IAsynTcpSocketListener> spAsynTcpSocketListener;
-                m_spAsynNetwork->CreateAsynTcpSocketListener(STRING_EX::null, &spAsynTcpSocketListener);
+                m_spAsynNetwork->CreateAsynTcpSocketListener(0, &spAsynTcpSocketListener);
 
                 if( info->prot == "P" )
                 {

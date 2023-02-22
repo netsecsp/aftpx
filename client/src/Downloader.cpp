@@ -271,7 +271,7 @@ HRESULT CDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoO
 	{// 主动模式
         {
             CComPtr<IAsynTcpSocketListener> spDataTcpSocketListener;
-            m_spAsynNetwork->CreateAsynTcpSocketListener(asynsdk::STRING_EX::null, &spDataTcpSocketListener);
+            m_spAsynNetwork->CreateAsynTcpSocketListener(0, &spDataTcpSocketListener);
             if( m_prxyname != "none" )
             {
                 CComPtr<IAsynRawSocket  > spAsynPtlSocket;
