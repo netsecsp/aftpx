@@ -302,7 +302,7 @@ HRESULT CDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoO
         }
         m_spDataTcpSocketListener->Open(m_spAsynFrameThread, m_af, SOCK_STREAM, IPPROTO_TCP);
 
-        m_spAsynFrameThread->BindAsynIoOperation(lpAsynIoOperation, 0, 0, 5000/*5sec超时*/);
+        m_spAsynFrameThread->BindAsynIoOperation(lpAsynIoOperation, 0, 0, 5000/*5sec*/); //设定io超时
         crReturn(m_spDataTcpSocketListener->Bind(STRING_EX::null, 0, FALSE, lpAsynIoOperation));
         if( lErrorCode != NO_ERROR)
         {
@@ -335,7 +335,7 @@ HRESULT CDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoO
             m_spCtrlTcpSocket->SendPacket(STRING_from_string("PORT"), STRING_from_string(temp), 0, 0);
         }
 
-        m_spAsynFrameThread->BindAsynIoOperation(lpAsynIoOperation, 0, 0, 5000);
+        m_spAsynFrameThread->BindAsynIoOperation(lpAsynIoOperation, 0, 0, 5000/*5sec*/); //设定io超时
         crReturn(m_spDataTcpSocketListener->Accept(lpAsynIoOperation));
         m_spDataTcpSocketListener = 0;
         if( lErrorCode != NO_ERROR )
@@ -634,8 +634,6 @@ HRESULT CDownloader::OnEventNotify( uint64_t lParam1, uint64_t lParam2, IAsynIoO
     }
 
     HRESULT r1 = m_spCtrlTcpSocket->Close(0); //Close能够自动发送QUIT
-    m_spAsynIoBridge->Close(0);
-
     SetEvent(m_hNotify);
     return S_OK;
 }

@@ -422,7 +422,7 @@ HRESULT CService::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoOper
 
                 printf("wait to accept data connection to %s:%d\n", host.c_str(), port);
                 //注意：不能提交读请求，此时需要等待客户端连接进来
-                m_spAsynFrameThread->BindAsynIoOperation(lpAsynIoOperation, 0, 0, 5000/*5sec超时*/);
+                m_spAsynFrameThread->BindAsynIoOperation(lpAsynIoOperation, 0, 0, 5000/*5sec超时*/); //设定io超时
                 lpAsynIoOperation->SetOpParam1(2/*数据连接接入*/);
                 return info->spDataTcpSocketListener->Accept(lpAsynIoOperation);
             }
@@ -471,7 +471,7 @@ HRESULT CService::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoOper
 
                 printf("wait to accept data connection to %s:%d\n", host.c_str(), port);
                 //注意：不能提交读请求，此时需要等待客户端连接进来
-                m_spAsynFrameThread->BindAsynIoOperation(lpAsynIoOperation, 0, 0, 5000/*5sec超时*/);
+                m_spAsynFrameThread->BindAsynIoOperation(lpAsynIoOperation, 0, 0, 5000/*5sec超时*/); //设定io超时
                 lpAsynIoOperation->SetOpParam1(2/*数据连接接入*/);
                 return info->spDataTcpSocketListener->Accept(lpAsynIoOperation);
             }

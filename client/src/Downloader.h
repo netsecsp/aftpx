@@ -250,14 +250,14 @@ public:
         crStateV(0);
 
         if( m_prxyname == "none" )
-            printf("start to tcp.connect %s:%d\n", m_host.c_str(), m_port);
+            printf("start to connect %s:%d\n", m_host.c_str(), m_port);
         else
-            printf("start to tcp.connect %s:%d via proxy: %s[%s:%d]\n", m_host.c_str(), m_port, m_prxyname.c_str(), m_setsfile.get_string("proxy", "host", "127.0.0.1").c_str(), m_setsfile.get_long("proxy", "port", 1080));
+            printf("start to connect %s:%d via %s-proxyserver[%s:%d]\n", m_host.c_str(), m_port, m_prxyname.c_str(), m_setsfile.get_string("proxy", "host", "127.0.0.1").c_str(), m_setsfile.get_long("proxy", "port", 1080));
 
         CComPtr<IAsynNetIoOperation> spAsynIoOperation;
         m_spAsynNetwork->CreateAsynIoOperation(m_spAsynFrame, m_af, 0, IID_IAsynNetIoOperation, (void **)&spAsynIoOperation);
         HRESULT r2 = spAsynIoOperation->SetOpParam1(0/*控制链接*/);
-        spAsynTcpSocket->Connect(STRING_from_string(m_host), m_port, 0, spAsynIoOperation, m_setsfile.get_long("session", "connect_timeout", 5000/*5sec*/));
+        spAsynTcpSocket->Connect(STRING_from_string(m_host), m_port, 0, spAsynIoOperation, m_setsfile.get_long("session", "connect_timeout", 2000/*2sec*/));
         return true;
     }
 
