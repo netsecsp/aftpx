@@ -2,7 +2,7 @@
 #############################
 [globals]
 #全局发送限速, B/s
-max_sendspeed=102400
+max_sendspeed=-1
 
 [tcp]
 port=21
