@@ -48,6 +48,8 @@ HRESULT CTranfile::OnQueryResult( uint64_t lParam1, uint64_t lParam2, IUnknown *
 {
     if( m_spAsynIoBridge != (IAsynIoBridge *)lParam1) return E_NOTIMPL;
 
-    //printf("transmit: %I64d\n", lParam2);
+    #ifdef _DEBUG
+    printf("transmit: %I64d\n", lParam2);
+    #endif
     return S_OK;
 }

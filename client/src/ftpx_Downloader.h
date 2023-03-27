@@ -354,7 +354,6 @@ public:
                 }
 
                 spAsynInnSocket = spAsynPtlSocket;
-
                 m_bssl = false;
             }
             else
@@ -388,9 +387,16 @@ public:
 
                     spAsynInnSocket = spAsynPtlSocket;
                 }
+                
+                std::string version = m_setsfile.get_string("proxy", "version");
+                if(!version.empty())
+                    version.insert(0, "/");
+                
+                if( schema != "ftp")
+                    version += ":" + m_setsfile.get_string("ssl", "algo", "tls/1.0");
 
                 CComPtr<IAsynRawSocket> spAsynTmpSocket;
-                m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("proxy"), (IUnknown **)&spAsynInnSocket.p, STRING_from_string(schema + "/" + m_setsfile.get_string("proxy", "version", "1.0")), &spAsynTmpSocket);
+                m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("proxy"), (IUnknown **)&spAsynInnSocket.p, STRING_from_string(m_prxyname + version), &spAsynTmpSocket);
                 if( spAsynTmpSocket == NULL )
                 {
                     printf("can't load plugin: proxy.%s\n", schema.c_str());
@@ -409,8 +415,12 @@ public:
             }
             else
             {// http/socks proxy
+                std::string version = m_setsfile.get_string("proxy", "version");
+                if(!version.empty())
+                    version.insert(0, "/");
+
                 CComPtr<IAsynRawSocket> spAsynTmpSocket;
-                m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("proxy"), (IUnknown **)&spAsynInnSocket.p, STRING_from_string(m_prxyname + "/" + m_setsfile.get_string("proxy", "version", "1.0")), &spAsynTmpSocket);
+                m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("proxy"), (IUnknown **)&spAsynInnSocket.p, STRING_from_string(m_prxyname + version), &spAsynTmpSocket);
                 if( spAsynTmpSocket == NULL )
                 {
                     printf("can't load plugin: proxy.%s\n", schema.c_str());

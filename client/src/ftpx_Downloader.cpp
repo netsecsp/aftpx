@@ -43,7 +43,9 @@ HRESULT CFtpxDownloader::OnQueryResult( uint64_t lParam1, uint64_t lParam2, IUnk
     if( lParam1 == 0 ||
         m_spAsynIoBridge != (IAsynIoBridge *)lParam1) return E_NOTIMPL;
 
+    #ifdef _DEBUG
     printf("transmit: %I64d\n", lParam2);
+    #endif
     m_datasize -= lParam2;
 
     return m_datasize != 0 ? S_OK : S_FALSE;
@@ -78,7 +80,7 @@ HRESULT CFtpxDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsy
     }
     lpAsynIoOperation->QueryInterface(IID_IAsynNetIoOperation, (void **)&spAsynIoOperation);
     spAsynIoOperation->GetPeerAddress(&host, 0, &port, &m_af);
-    printf("connect %s:%d[%s]\n", host.m_val.c_str(), port, m_af == AF_INET ? "ipv4" : "ipv6");
+    printf("connect %s:%d[%s]\n", host.m_val.c_str(), port, m_af==AF_INET? "ipv4" : "ipv6");
 
     lpAsynIoOperation->GetCompletedObject(1, IID_INetmsg, (void **)&spNetmsg);
     spNetmsg->Getline(&Status, &Params, 0, 0 );
@@ -187,12 +189,12 @@ HRESULT CFtpxDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsy
 
     if( m_filepath.empty() == false )
     {// 改变路径
-        printf("send cwd  req: CWD  %s\n", m_filepath.c_str());
+        printf("send  cwd req: CWD  %s\n", m_filepath.c_str());
         m_spCtrlTcpSocket->SendPacket(STRING_from_string( "CWD"), STRING_from_string(m_filepath), 0, 0);
         crReturn(m_spCtrlTcpSocket->Read(lpAsynIoOperation));
         if( lErrorCode != NO_ERROR )
         {
-            printf("recv cwd  ack, error: %d\n", lErrorCode);
+            printf("recv  cwd ack, error: %d\n", lErrorCode);
             SetEvent(m_hNotify);
             return E_NOTIMPL;
         }
@@ -200,7 +202,7 @@ HRESULT CFtpxDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsy
         spNetmsg->Getline(&Status, &Params, 0, 0 );
         status = string_from_STRING(Status);
         params = string_from_STRING(Params);
-        printf("recv cwd  ack: %s %s\n", status.c_str(), params.c_str());
+        printf("recv  cwd ack: %s %s\n", status.c_str(), params.c_str());
         lErrorCode = atoi(status.c_str());
         if( lErrorCode / 100 != 2 )
         {
@@ -274,8 +276,12 @@ HRESULT CFtpxDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsy
             m_spAsynNetwork->CreateAsynTcpSocketListener(0, &spDataTcpSocketListener);
             if( m_prxyname != "none" )
             {
+                std::string version = m_setsfile.get_string("proxy", "version");
+                if(!version.empty())
+                    version.insert(0, "/");
+
                 CComPtr<IAsynRawSocket  > spAsynPtlSocket;
-                m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("proxy"), (IUnknown **)&spDataTcpSocketListener.p, STRING_from_string(m_prxyname + "/" + m_setsfile.get_string("proxy", "version", "1.0")), &spAsynPtlSocket);
+                m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("proxy"), (IUnknown **)&spDataTcpSocketListener.p, STRING_from_string(m_prxyname + version), &spAsynPtlSocket);
 
                 CComPtr<IAsynProxySocket> spProxy;
                 spAsynPtlSocket->QueryInterface(IID_IAsynProxySocket, (void **)&spProxy);
@@ -438,10 +444,14 @@ HRESULT CFtpxDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsy
             }
             else
             {// http/socks.proxy
+                std::string version = m_setsfile.get_string("proxy", "version");
+                if(!version.empty())
+                    version.insert(0, "/");
+
                 CComPtr<IAsynTcpSocket> spAsynInnSocket;
                 m_spAsynNetwork->CreateAsynTcpSocket(&spAsynInnSocket );
 
-                m_spAsynNetwork->CreateAsynPtlSocket( STRING_from_string("proxy"), (IUnknown **)&spAsynInnSocket.p, STRING_from_string(m_prxyname + "/" + m_setsfile.get_string("proxy", "version", "1.0")), &spDataTcpSocket);
+                m_spAsynNetwork->CreateAsynPtlSocket( STRING_from_string("proxy"), (IUnknown **)&spAsynInnSocket.p, STRING_from_string(m_prxyname + version), &spDataTcpSocket);
 
                 CComPtr<IAsynProxySocket> spProxy;
                 spDataTcpSocket->QueryInterface(IID_IAsynProxySocket, (void **)&spProxy);
@@ -477,9 +487,9 @@ HRESULT CFtpxDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsy
 
         if( m_prxyname == "none" ||
             m_prxyname == "ftp" )
-            printf("start to tcp.connect %s:%d\n", host.m_val.c_str(), port);
+            printf("start to connect %s:%d\n", host.m_val.c_str(), port);
         else
-            printf("start to tcp.connect %s:%d via proxy: %s[%s:%d]\n", host.m_val.c_str(), port, m_prxyname.c_str(), m_setsfile.get_string("proxy", "host", "192.168.1.101").c_str(), m_setsfile.get_long("proxy", "port", 1080));
+            printf("start to connect %s:%d via %s-proxyserver[%s]\n", host.m_val.c_str(), port, m_prxyname.c_str(), m_setsfile.get_string("proxy", "host", "127.0.0.1").c_str());
 
         crReturn(spAsynTcpSocket->Connect(STRING_from_string(host.m_val), port, 0, lpAsynIoOperation, 5000)); //必须使用异步连接
         if( lErrorCode != NO_ERROR )

@@ -97,7 +97,9 @@ HRESULT CService::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoOper
             }
             else
             {// 控制连接接入失败
+                #ifdef _DEBUG
                 printf("accept ctrl connection, error: %d\n", lErrorCode);
+                #endif
                 return m_spAsynTcpSocketListener[lParam1]->Accept(lpAsynIoOperation);
             }
         }
@@ -191,7 +193,7 @@ HRESULT CService::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoOper
             STRING Params;
             spReqmsg->Getline(&Method, &Params, 0, 0 );
             std::string method = string_from_STRING(Method);
-			std::string params = string_from_STRING(Params);
+            std::string params = string_from_STRING(Params);
 
 #ifdef _DEBUG
             if( params.empty() == false )
@@ -351,7 +353,7 @@ HRESULT CService::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoOper
                 spReqmsg->Get(STRING_from_string(";value_ansi"), 0, 0, &v); //获取params的CP_ACP编码格式
 
                 std::string filename = info->root;
-                if( params.empty( ) != false || params[0] != '/' ) filename += (info->path == "/" ? ("/") : (info->path + "/"));
+                if( params.empty() != false || params[0] != '/' ) filename += (info->path == "/" ? ("/") : (info->path + "/"));
                 filename += params;
 
                 HANDLE hFile = ::CreateFile(filename.c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED, NULL);
