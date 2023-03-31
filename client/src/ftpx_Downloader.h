@@ -153,7 +153,7 @@ public:
                             hostport = tmpurl.substr(pos1);
                         }
                         else
-                        {// ver?params
+                        {// ver?method=v&ssl=v
                             hostport = tmpurl.substr(pos1, pos2 - pos1);
 
                             pos2 += 1;
@@ -175,20 +175,27 @@ public:
                                     m_setsfile.set_string("proxy", "version", tmpurl.substr(pos2, post - pos2));
                                 }
 
-                                std::string::size_type poss = params.find("method=");
-                                if( poss != std::string::npos )
-                                {
-                                    poss += 7;
-                                    std::string::size_type pose = params.find('&');
-                                    if( pose == std::string::npos )
-                                    {
-                                        m_setsfile.set_string("proxy", "method", params.substr(poss));
-                                    }
-                                    else
-                                    {
-                                        m_setsfile.set_string("proxy", "method", params.substr(poss, pose - poss));
-                                    }
-                                }
+                                std::map<std::string, std::string> t;
+                                const char *s = params.c_str(), *e = s + params.size(), *i;
+                                do{
+                                    i = strchr(s, '=');
+                                    if(!i ) break;
+
+                                    std::string key(s, i - s);
+
+                                    s = i + 1; //skip '='
+
+                                    i = strchr(s, '&');
+
+                                    t[key] = std::string(s, i? (i - s) : (e - s));
+
+                                    if(!i ) break;
+
+                                    s = i + 1; //skip '&'
+                                }while(1);
+
+                                m_setsfile.set_string("proxy", "method", t["method"]);
+                                m_setsfile.set_string("proxy", "ssl", t["ssl"]);
                             }
                         }
 
@@ -322,6 +329,7 @@ public:
         std::string::size_type pos5 = url.rfind('/');
         m_filename = url.substr(pos5 + 1); //等于空表示下载目录
         m_filepath = url.substr(pos2, pos5 - pos2);
+        m_bssl = schema == "ftps";
 
         if( m_savename.empty())
         {
@@ -341,127 +349,130 @@ public:
         CComPtr<IAsynRawSocket> spAsynInnSocket;
         m_spAsynNetwork->CreateAsynTcpSocket((IAsynTcpSocket**)&spAsynInnSocket);
 
+        CComPtr<IAsynRawSocket> spAsynPtlSocket;
         if( m_prxyname == "none" ) 
         {// 没有配置代理的情况: none
-            if( schema != "ftp" && m_ssle == 0 )
+            if( m_bssl &&
+                m_ssle == 0 )
             {
-                CComPtr<IAsynRawSocket> spAsynPtlSocket;
-                m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("ssl"), (IUnknown **)&spAsynInnSocket.p, STRING_from_string(m_setsfile.get_string("ssl", "algo", "tls/1.0")), &spAsynPtlSocket);
-                if( spAsynPtlSocket == NULL )
+                CComPtr<IAsynRawSocket> spAsynTmpSocket;
+                m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("ssl"), (IUnknown **)&spAsynInnSocket.p, STRING_from_string(m_setsfile.get_string("ssl", "algo", "tls/1.0")), &spAsynTmpSocket);
+                if( spAsynTmpSocket == NULL )
                 {
                     printf("can't load plugin: ssl\n");
                     return false;
                 }
-
-                spAsynInnSocket = spAsynPtlSocket;
-                m_bssl = false;
-            }
-            else
-            {
-                m_bssl = schema == "ftps";
+                else
+                {
+                    spAsynInnSocket = spAsynTmpSocket;
+                }
             }
 
-            CComPtr<IAsynRawSocket> spAsynPtlSocket;
             m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("ftp"), (IUnknown **)&spAsynInnSocket.p, STRING_from_string(m_bssl==false? "tcp" : m_setsfile.get_string("ssl", "algo", "tls/1.0")), &spAsynPtlSocket);
             if( spAsynPtlSocket == NULL )
             {
                 printf("can't load plugin: ftp\n");
                 return false;
             }
-
-            spAsynPtlSocket->QueryInterface(IID_INet, (void **)&m_spCtrlTcpSocket);
         }
         else
         {// 已经配置代理的情况: ftp/http/socks proxy
             if( m_prxyname == "ftp")
-            {// ftp proxy    
-                if( schema != "ftp" && m_ssle == 0 )
+            {// ftp proxy
+                std::string ver = m_setsfile.get_string("proxy", "version");
+                if(!ver.empty())
+                    ver.insert(0, "/");
+
+                std::string ssl = m_setsfile.get_string("proxy", "ssl");
+                if(!ssl.empty())
+                    ssl.insert(0, ":");
+                else
+                    m_bssl = false; //force ftpt
+
+                m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("proxy"), (IUnknown **)&spAsynInnSocket.p, STRING_from_string(m_prxyname + ver + ssl), &spAsynPtlSocket);
+                if( spAsynPtlSocket == NULL )
                 {
-                    CComPtr<IAsynRawSocket> spAsynPtlSocket;
-                    m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("ssl"), (IUnknown **)&spAsynInnSocket.p, STRING_from_string(m_setsfile.get_string("ssl", "algo", "tls/1.0")), &spAsynPtlSocket);
-                    if( spAsynPtlSocket == NULL )
+                    printf("can't load plugin: proxy.%s\n", schema.c_str());
+                    return false;
+                }
+
+                CComPtr<IAsynProxySocket> spProxy;
+                spAsynPtlSocket->QueryInterface(IID_IAsynProxySocket, (void **)&spProxy);
+
+                asynsdk::CKeyvalSetter    params(1);
+                params.Set(STRING_from_string(";account"), 1, STRING_from_string(m_setsfile.get_string("proxy", "user") + ":" + m_setsfile.get_string("proxy", "password")));
+                HRESULT r1 = spProxy->SetProxyContext(STRING_from_string(m_setsfile.get_string("proxy", "host", "127.0.0.1")), (PORT)m_setsfile.get_long("proxy", "port", 2121), STRING_from_string(m_setsfile.get_string("proxy", "method", "")), &params);
+            }
+            else
+            {// http/socks proxy
+                std::string ver = m_setsfile.get_string("proxy", "version");
+                if(!ver.empty())
+                    ver.insert(0, "/");
+
+                std::string ssl = m_prxyname == "socks"? "" : m_setsfile.get_string("proxy", "ssl");
+                if(!ssl.empty())
+                    ssl.insert(0, ":");
+
+                CComPtr<IAsynRawSocket> spAsynTmpSocket;
+                m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("proxy"), (IUnknown **)&spAsynInnSocket.p, STRING_from_string(m_prxyname + ver + ssl), &spAsynTmpSocket);
+                if( spAsynTmpSocket == NULL )
+                {
+                    printf("can't load plugin: proxy.%s\n", schema.c_str());
+                    return false;
+                }
+                else
+                {
+                    spAsynInnSocket = spAsynTmpSocket;
+                }
+
+                CComPtr<IAsynProxySocket> spProxy;
+                spAsynInnSocket->QueryInterface(IID_IAsynProxySocket, (void **)&spProxy);
+
+                asynsdk::CKeyvalSetter    params(1);
+                params.Set(STRING_from_string(";account"), 1, STRING_from_string(m_setsfile.get_string("proxy", "user") + ":" + m_setsfile.get_string("proxy", "password")));
+
+                if( m_prxyname == "http" )
+                {
+                    CComPtr<IHttpTxTunnel> spDataTxTunnel; spProxy->QueryInterface(IID_IHttpTxTunnel, (void **)&spDataTxTunnel);
+                    spDataTxTunnel->SetEnabled(1); //强制直接代理
+
+                    HRESULT r1 = spProxy->SetProxyContext(STRING_from_string(m_setsfile.get_string("proxy", "host", "127.0.0.1")), (PORT)m_setsfile.get_long("proxy", "port", 8080), STRING_from_string(m_setsfile.get_string("proxy", "method", "")), &params);
+                    m_pasv = true; //force pasv
+                }
+                else
+                {
+                    HRESULT r1 = spProxy->SetProxyContext(STRING_from_string(m_setsfile.get_string("proxy", "host", "127.0.0.1")), (PORT)m_setsfile.get_long("proxy", "port", 1080), STRING_from_string(m_setsfile.get_string("proxy", "method", "")), &params);
+                }
+
+                if( m_bssl &&
+                    m_ssle == 0 )
+                {
+                    CComPtr<IAsynRawSocket> spAsynTmpSocket;
+                    m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("ssl"), (IUnknown **)&spAsynInnSocket.p, STRING_from_string(m_setsfile.get_string("ssl", "algo", "tls/1.0")), &spAsynTmpSocket);
+                    if( spAsynTmpSocket == NULL )
                     {
                         printf("can't load plugin: ssl\n");
                         return false;
                     }
-
-                    spAsynInnSocket = spAsynPtlSocket;
-                }
-                
-                std::string version = m_setsfile.get_string("proxy", "version");
-                if(!version.empty())
-                    version.insert(0, "/");
-                
-                if( schema != "ftp")
-                    version += ":" + m_setsfile.get_string("ssl", "algo", "tls/1.0");
-
-                CComPtr<IAsynRawSocket> spAsynTmpSocket;
-                m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("proxy"), (IUnknown **)&spAsynInnSocket.p, STRING_from_string(m_prxyname + version), &spAsynTmpSocket);
-                if( spAsynTmpSocket == NULL )
-                {
-                    printf("can't load plugin: proxy.%s\n", schema.c_str());
-                    return false;
+                    else
+                    {
+                        spAsynInnSocket = spAsynTmpSocket;
+                    }
                 }
 
-                CComPtr<IAsynProxySocket> spProxy;
-                spAsynTmpSocket->QueryInterface(IID_IAsynProxySocket, (void **)&spProxy);
-                
-                asynsdk::CKeyvalSetter params(1);
-                params.Set(STRING_from_string(";account"), 1, STRING_from_string(m_setsfile.get_string("proxy", "user") + ":" + m_setsfile.get_string("proxy", "password")));
-                HRESULT r1 = spProxy->SetProxyContext(STRING_from_string(m_setsfile.get_string("proxy", "host", "127.0.0.1")), schema == "ftp" || m_ssle != 0? (PORT)m_setsfile.get_long("proxy", "port", 2121) : (PORT)m_setsfile.get_long("proxy", "port", 2990), STRING_from_string(m_setsfile.get_string("proxy", "method", "")), &params);
-
-                spAsynTmpSocket->QueryInterface(IID_INet, (void **)&m_spCtrlTcpSocket);
-                m_bssl = false;
-            }
-            else
-            {// http/socks proxy
-                std::string version = m_setsfile.get_string("proxy", "version");
-                if(!version.empty())
-                    version.insert(0, "/");
-
-                CComPtr<IAsynRawSocket> spAsynTmpSocket;
-                m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("proxy"), (IUnknown **)&spAsynInnSocket.p, STRING_from_string(m_prxyname + version), &spAsynTmpSocket);
-                if( spAsynTmpSocket == NULL )
-                {
-                    printf("can't load plugin: proxy.%s\n", schema.c_str());
-                    return false;
-                }
-
-                CComPtr<IAsynProxySocket> spProxy;
-                spAsynTmpSocket->QueryInterface(IID_IAsynProxySocket, (void **)&spProxy);
-
-                m_bssl = schema == "ftps";
-
-                if( m_prxyname == "http" )
-                {
-                    asynsdk::CKeyvalSetter params(1);
-                    params.Set(STRING_from_string(";account"), 1, STRING_from_string(m_setsfile.get_string("proxy", "user") + ":" + m_setsfile.get_string("proxy", "password")));
-                    HRESULT r1 = spProxy->SetProxyContext(STRING_from_string(m_setsfile.get_string("proxy", "host", "127.0.0.1")), (PORT)m_setsfile.get_long("proxy", "port", 8080), STRING_from_string(m_setsfile.get_string("proxy", "method", "")), &params);
-                    CComPtr<IHttpTxTunnel> spDataTxTunnel; spProxy->QueryInterface(IID_IHttpTxTunnel, (void **)&spDataTxTunnel);
-                    spDataTxTunnel->SetEnabled(1); //强制直接代理
-                }
-                else
-                {
-                    asynsdk::CKeyvalSetter params(1);
-                    params.Set(STRING_from_string(";account"), 1, STRING_from_string(m_setsfile.get_string("proxy", "user") + ":" + m_setsfile.get_string("proxy", "password")));
-                    HRESULT r1 = spProxy->SetProxyContext(STRING_from_string(m_setsfile.get_string("proxy", "host", "127.0.0.1")), (PORT)m_setsfile.get_long("proxy", "port", 1080), STRING_from_string(m_setsfile.get_string("proxy", "method", "")), &params);
-                }
-
-                CComPtr<IAsynRawSocket> spAsynPtlSocket;
-                m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("ftp"), (IUnknown **)&spAsynTmpSocket.p, STRING_from_string(m_bssl==false? "tcp" : m_setsfile.get_string("ssl", "algo", "tls/1.0")), &spAsynPtlSocket);
+                m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("ftp"), (IUnknown **)&spAsynInnSocket.p, STRING_from_string(m_bssl==false? "tcp" : m_setsfile.get_string("ssl", "algo", "tls/1.0")), &spAsynPtlSocket);
                 if( spAsynPtlSocket == NULL )
                 {
                     printf("can't load plugin: ftp");
                     return false;
                 }
-
-                spAsynPtlSocket->QueryInterface(IID_INet, (void **)&m_spCtrlTcpSocket);
             }
         }
 
+        spAsynPtlSocket->QueryInterface(IID_INet, (void **)&m_spCtrlTcpSocket);
         CComPtr<IAsynTcpSocket> spAsynTcpSocket;
-        m_spCtrlTcpSocket->QueryInterface( IID_IAsynTcpSocket, (void **)&spAsynTcpSocket);
-        spAsynTcpSocket->Open( m_spAsynFrameThread, m_af, SOCK_STREAM, IPPROTO_TCP );
+        spAsynPtlSocket->QueryInterface(IID_IAsynTcpSocket, (void **)&spAsynTcpSocket);
+        spAsynTcpSocket->Open(m_spAsynFrameThread, m_af, SOCK_STREAM, IPPROTO_TCP);
 
         //开始连接...
         crStateV(0);
@@ -479,10 +490,8 @@ public:
                 printf("start to connect %s:%d via %s-proxyserver[%s]\n", m_host.c_str(), m_port, m_prxyname.c_str(), m_setsfile.get_string("proxy", "host", "127.0.0.1").c_str());
         }
 
-        CComPtr<IAsynNetIoOperation> spAsynIoOperation;
-        m_spAsynNetwork->CreateAsynIoOperation(m_spAsynFrame, 0, 0, IID_IAsynNetIoOperation, (void **)&spAsynIoOperation);
-
-        HRESULT r2 = spAsynIoOperation->SetOpParam1(0/*控制链接*/);
+        CComPtr<IAsynNetIoOperation> spAsynIoOperation; m_spAsynNetwork->CreateAsynIoOperation(m_spAsynFrame, 0, 0, IID_IAsynNetIoOperation, (void **)&spAsynIoOperation);
+        spAsynIoOperation->SetOpParam1(0/*控制链接*/);
         spAsynTcpSocket->Connect(STRING_from_string(m_host), m_port, 0, spAsynIoOperation, m_setsfile.get_long("session", "connect_timeout", 2000/*2sec*/));
         return true;
     }
