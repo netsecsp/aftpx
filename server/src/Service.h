@@ -104,7 +104,7 @@ public:
             m_spAsynNetwork->CreateAsynTcpSocketListener(0, &spAsynInnSocketListener);
 
             CComPtr<IAsynRawSocket        > spAsynPtlSocket;
-            m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("ftp"), (IUnknown **)&spAsynInnSocketListener.p, STRING_from_string("tcp"), &spAsynPtlSocket);
+            m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("ftp"), spAsynInnSocketListener, 0, STRING_from_string("tcp"), &spAsynPtlSocket);
             if( spAsynPtlSocket == NULL )
             {
                 printf("can't load plugin: ftp\n");
@@ -134,7 +134,7 @@ public:
             m_spAsynNetwork->CreateAsynTcpSocketListener(0, &spAsynInnSocketListener);
 
             CComPtr<IAsynRawSocket        > spAsynSslSocket;
-            m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("ssl"), (IUnknown **)&spAsynInnSocketListener.p, STRING_from_string(m_setsfile.get_string("ssl", "algo", "tls/1.0")), &spAsynSslSocket);
+            m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("ssl"), spAsynInnSocketListener, 0, STRING_from_string(m_setsfile.get_string("ssl", "algo", "tls/1.0")), &spAsynSslSocket);
             if( spAsynSslSocket == NULL )
             {
                 printf("can't load plugin: ssl\n");
@@ -142,7 +142,7 @@ public:
             }
 
             CComPtr<IAsynRawSocket        > spAsynPtlSocket;
-            m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("ftp"), (IUnknown **)&spAsynSslSocket.p, STRING_from_string(m_setsfile.get_string("ssl", "algo", "tls/1.0")), &spAsynPtlSocket);
+            m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("ftp"), spAsynSslSocket, 0, STRING_from_string(m_setsfile.get_string("ssl", "algo", "tls/1.0")), &spAsynPtlSocket);
             if( spAsynPtlSocket == NULL )
             {
                 printf("can't load plugin: ftp\n");

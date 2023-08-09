@@ -40,7 +40,7 @@ END_ASYN_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 HRESULT CService::OnQueryResult( uint64_t lparam1, uint64_t lparam2, IKeyvalSetter **ppKeyval )
 {
-    if( lparam1 ) return E_NOTIMPL;
+    if( lparam1 != EN_SystemEvent) return E_NOTIMPL;
  
     asynsdk::CStringSetter d(1);
     ppKeyval[0]->Get(STRING_from_string(";dattype"), 0, 0, &d);
@@ -403,7 +403,7 @@ HRESULT CService::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoOper
                 if( info->prot == "P" )
                 {
                      CObjPtr<IAsynRawSocket> spAsynSslSocket;
-                     m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("ssl"), (IUnknown**)&spAsynTcpSocketListener.p, STRING_from_string(m_setsfile.get_string("ssl", "algo", "tls/1.0")), &spAsynSslSocket.p);
+                     m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("ssl"), spAsynTcpSocketListener, 0, STRING_from_string(m_setsfile.get_string("ssl", "algo", "tls/1.0")), &spAsynSslSocket.p);
                      spAsynSslSocket->QueryInterface(IID_IAsynTcpSocketListener, (void**)&info->spDataTcpSocketListener);
                 }
                 else
@@ -443,7 +443,7 @@ HRESULT CService::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoOper
                 if( info->prot == "P" )
                 {
                      CObjPtr<IAsynRawSocket> spAsynSslSocket;
-                     m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("ssl"), (IUnknown**)&spAsynTcpSocketListener.p, STRING_from_string(m_setsfile.get_string("ssl", "algo", "tls/1.0")), &spAsynSslSocket.p);
+                     m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("ssl"), spAsynTcpSocketListener, 0, STRING_from_string(m_setsfile.get_string("ssl", "algo", "tls/1.0")), &spAsynSslSocket.p);
                      spAsynSslSocket->QueryInterface(IID_IAsynTcpSocketListener, (void**)&info->spDataTcpSocketListener);
                 }
                 else

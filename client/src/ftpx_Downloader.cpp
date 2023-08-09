@@ -40,7 +40,7 @@ END_ASYN_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 HRESULT CFtpxDownloader::OnQueryResult( uint64_t lParam1, uint64_t lParam2, IUnknown **objects )
 {
-    if( lParam1 == 0 ||
+    if( lParam1 == EN_SystemEvent ||
         m_spAsynIoBridge != (IAsynIoBridge *)lParam1) return E_NOTIMPL;
 
     #ifdef _DEBUG
@@ -280,7 +280,7 @@ HRESULT CFtpxDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsy
                     ver.insert(0, "/");
 
                 CComPtr<IAsynRawSocket  > spAsynTmpSocket;
-                m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("proxy"), (IUnknown **)&spDataTcpSocketListener.p, STRING_from_string(m_prxyname + ver), &spAsynTmpSocket);
+                m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("proxy"), spDataTcpSocketListener, 0, STRING_from_string(m_prxyname + ver), &spAsynTmpSocket);
 
                 CComPtr<IAsynProxySocket> spProxy;
                 spAsynTmpSocket->QueryInterface(IID_IAsynProxySocket, (void **)&spProxy);
@@ -295,7 +295,7 @@ HRESULT CFtpxDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsy
             if( m_bssl )
             {
                 CComPtr<IAsynRawSocket  > spAsynTmpSocket;
-                m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("ssl"), (IUnknown **)&spDataTcpSocketListener.p, STRING_from_string(m_setsfile.get_string("ssl", "algo", "tls/1.0")), &spAsynTmpSocket);
+                m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("ssl"), spDataTcpSocketListener, 0, STRING_from_string(m_setsfile.get_string("ssl", "algo", "tls/1.0")), &spAsynTmpSocket);
                 spAsynTmpSocket->QueryInterface(IID_IAsynTcpSocketListener, (void **)&m_spDataTcpSocketListener);
             }
             else
@@ -470,7 +470,7 @@ HRESULT CFtpxDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsy
                 CComPtr<IAsynTcpSocket  > spAsynInnSocket;
                 m_spAsynNetwork->CreateAsynTcpSocket(&spAsynInnSocket );
 
-                m_spAsynNetwork->CreateAsynPtlSocket( STRING_from_string("proxy"), (IUnknown **)&spAsynInnSocket.p, STRING_from_string(m_prxyname + ver + ssl), &spDataTcpSocket);
+                m_spAsynNetwork->CreateAsynPtlSocket( STRING_from_string("proxy"), spAsynInnSocket, 0, STRING_from_string(m_prxyname + ver + ssl), &spDataTcpSocket);
 
                 CComPtr<IAsynProxySocket> spProxy;
                 spDataTcpSocket->QueryInterface(IID_IAsynProxySocket, (void **)&spProxy);
@@ -492,7 +492,7 @@ HRESULT CFtpxDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsy
 
             if( m_bssl )
             {
-                m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("ssl"), (IUnknown **)&spDataTcpSocket.p, STRING_from_string(m_setsfile.get_string("ssl", "algo", "tls/1.0")), &m_spDataTcpSocket);
+                m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("ssl"), spDataTcpSocket, 0, STRING_from_string(m_setsfile.get_string("ssl", "algo", "tls/1.0")), &m_spDataTcpSocket);
             }
             else
             {
