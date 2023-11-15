@@ -500,7 +500,7 @@ HRESULT CService::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoOper
                 lpAsynIoOperation->NewIoBuffer(0, (BYTE *)ret.c_str(), 0, ret.size(), ret.size(), 0);
                 lpAsynIoOperation->SetIoParams(0, ret.size(), ret.size());
                 info->starttime = ::GetTickCount();
-                return info->spDataTcpSocket->Write(lpAsynIoOperation, 0);
+                return info->spDataTcpSocket->Write(lpAsynIoOperation);
             }
 
             if( method == "REST")
