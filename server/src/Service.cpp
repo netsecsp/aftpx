@@ -1,7 +1,7 @@
 /*****************************************************************************
 Copyright (c) netsecsp 2012-2032, All rights reserved.
 
-Developer: Shengqian Yang, from China, E-mail: netsecsp@hotmail.com, last updated 05/01/2022
+Developer: Shengqian Yang, from China, E-mail: netsecsp@hotmail.com, last updated 01/15/2024
 http://aftpx.sf.net
 
 Redistribution and use in source and binary forms, with or without
@@ -63,7 +63,7 @@ HRESULT CService::OnQueryResult( uint64_t lparam1, uint64_t lparam2, IKeyvalSett
         return S_OK;
     }
 
-    if((ipos=d.m_val.rfind("ftp.stat"   )) != std::string::npos)
+    if((ipos=d.m_val.rfind("stat.verify")) != std::string::npos)
     {
         static const char *stat = "Copyright (c) netsecsp 2012-2032, All rights reserved.\n"
                                   "Developer: Shengqian Yang, from China, E-mail: netsecsp@hotmail.com, last updated " STRING_UPDATETIME "\n"
@@ -113,7 +113,7 @@ HRESULT CService::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoOper
             printf("accepted %s connection from %s:%d\n", lParam1 == 2 ? "data" : "ctrl", host.c_str(), port);
 
             CComPtr<IAsynTcpSocket     > spAsynNewSocket;
-            lpAsynIoOperation->GetCompletedObject(1, IID_IAsynTcpSocket, (void **)&spAsynNewSocket);
+            lpAsynIoOperation->GetCompletedObject(1, IID_IAsynTcpSocket, (IUnknown**)&spAsynNewSocket);
 
             if( lParam1 == 2 )
             {// 数据连接接入成功
@@ -139,7 +139,7 @@ HRESULT CService::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoOper
                 spAsynNewSocket->QueryInterface(IID_INet, (void **)&info.spCtrlTcpSocket);
 
                 CComPtr<IAsynIoOperation> spRecvIoOperation;
-                m_spAsynNetwork->CreateAsynIoOperation(m_spAsynFrame, m_af, 0, IID_IAsynIoOperation, (void **)&spRecvIoOperation);
+                m_spAsynNetwork->CreateAsynIoOperation(m_spAsynFrame, m_af, 0, IID_IAsynIoOperation, (IUnknown **)&spRecvIoOperation);
                 m_arOp2Userinfos[spRecvIoOperation] = &info;
 
                 return info.spCtrlTcpSocket->Read(spRecvIoOperation); //继续接收ftp报文头部
@@ -187,7 +187,7 @@ HRESULT CService::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoOper
         {
             //接收来自客户端的ftp请求
             CComPtr<INetmsg> spReqmsg;
-            lpAsynIoOperation->GetCompletedObject(1, IID_INetmsg, (void **)&spReqmsg);
+            lpAsynIoOperation->GetCompletedObject(1, IID_INetmsg, (IUnknown **)&spReqmsg);
 
             STRING Method;
             STRING Params;
@@ -262,8 +262,8 @@ HRESULT CService::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoOper
                 info->mode = "A"; //传输类型
 
                 //控制数据连接速度: B/s
-                m_spInstanceManager->NewInstance(0, 0, IID_ISpeedController, (void **)&info->spDataSpeedController[Io_recv]);
-                m_spInstanceManager->NewInstance(0, 0, IID_ISpeedController, (void **)&info->spDataSpeedController[Io_send]);
+                m_spInstanceManager->NewInstance(0, 0, IID_ISpeedController, (IUnknown **)&info->spDataSpeedController[Io_recv]);
+                m_spInstanceManager->NewInstance(0, 0, IID_ISpeedController, (IUnknown **)&info->spDataSpeedController[Io_send]);
                 info->spDataSpeedController[Io_recv]->SetMaxSpeed(m_setsfile.get_long(info->user, "max_recvspeed", -1));
                 info->spDataSpeedController[Io_send]->SetMaxSpeed(m_setsfile.get_long(info->user, "max_sendspeed", -1));
                 return info->spCtrlTcpSocket->Read(lpAsynIoOperation);
@@ -567,7 +567,7 @@ HRESULT CService::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoOper
                 m_spAsynFrameThread->CreateAsynIoBridge(spAsynFile, info->spDataTcpSocket, 0, &spAsynIoBridge);
                 if( info->startipos )
                 {
-                    CComPtr<IAsynFileIoOperation> spAsynIoOperation; spAsynIoBridge->Get(BT_GetSourceIoOperation, 0, IID_IAsynFileIoOperation, (void**)&spAsynIoOperation);
+                    CComPtr<IAsynFileIoOperation> spAsynIoOperation; spAsynIoBridge->Get(BT_GetSourceIoOperation, 0, IID_IAsynFileIoOperation, (IUnknown**)&spAsynIoOperation);
 					spAsynIoOperation->SetPosition(info->startipos); //设置开始读取数据时文件的偏移
                 }
                 info->tranfile.reset(new CTranfile(spAsynIoBridge, lpAsynIoOperation));

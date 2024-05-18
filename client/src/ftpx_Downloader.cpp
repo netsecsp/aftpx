@@ -1,7 +1,7 @@
 /*****************************************************************************
 Copyright (c) netsecsp 2012-2032, All rights reserved.
 
-Developer: Shengqian Yang, from China, E-mail: netsecsp@hotmail.com, last updated 05/01/2022
+Developer: Shengqian Yang, from China, E-mail: netsecsp@hotmail.com, last updated 01/15/2024
 http://aftpx.sf.net
 
 Redistribution and use in source and binary forms, with or without
@@ -82,7 +82,7 @@ HRESULT CFtpxDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsy
     spAsynIoOperation->GetPeerAddress(&host, 0, &port, &m_af);
     printf("connect %s:%d[%s]\n", host.m_val.c_str(), port, m_af==AF_INET? "ipv4" : "ipv6");
 
-    lpAsynIoOperation->GetCompletedObject(1, IID_INetmsg, (void **)&spNetmsg);
+    lpAsynIoOperation->GetCompletedObject(1, IID_INetmsg, (IUnknown**)&spNetmsg);
     spNetmsg->Getline(&Status, &Params, 0, 0 );
     status = string_from_STRING(Status);
     params = string_from_STRING(Params);
@@ -104,7 +104,7 @@ HRESULT CFtpxDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsy
         SetEvent(m_hNotify);
         return S_OK;
     }
-    lpAsynIoOperation->GetCompletedObject(1, IID_INetmsg, (void **)&spNetmsg);
+    lpAsynIoOperation->GetCompletedObject(1, IID_INetmsg, (IUnknown**)&spNetmsg);
     spNetmsg->Getline(&Status, &Params, 0, 0 );
     status = string_from_STRING(Status);
     params = string_from_STRING(Params);
@@ -128,7 +128,7 @@ HRESULT CFtpxDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsy
                 SetEvent(m_hNotify);
                 return E_NOTIMPL;
             }
-            lpAsynIoOperation->GetCompletedObject(1, IID_INetmsg, (void **)&spNetmsg);
+            lpAsynIoOperation->GetCompletedObject(1, IID_INetmsg, (IUnknown**)&spNetmsg);
             spNetmsg->Getline(&Status, &Params, 0, 0 );
             status = string_from_STRING(Status);
             params = string_from_STRING(Params);
@@ -153,7 +153,7 @@ HRESULT CFtpxDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsy
             SetEvent(m_hNotify);
             return E_NOTIMPL;
         }
-        lpAsynIoOperation->GetCompletedObject(1, IID_INetmsg, (void **)&spNetmsg);
+        lpAsynIoOperation->GetCompletedObject(1, IID_INetmsg, (IUnknown**)&spNetmsg);
         spNetmsg->Getline(&Status, &Params, 0, 0 );
         status = string_from_STRING(Status);
         params = string_from_STRING(Params);
@@ -174,7 +174,7 @@ HRESULT CFtpxDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsy
             SetEvent(m_hNotify);
             return E_NOTIMPL;
         }
-        lpAsynIoOperation->GetCompletedObject(1, IID_INetmsg, (void **)&spNetmsg);
+        lpAsynIoOperation->GetCompletedObject(1, IID_INetmsg, (IUnknown**)&spNetmsg);
         spNetmsg->Getline(&Status, &Params, 0, 0 );
         status = string_from_STRING(Status);
         params = string_from_STRING(Params);
@@ -198,7 +198,7 @@ HRESULT CFtpxDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsy
             SetEvent(m_hNotify);
             return E_NOTIMPL;
         }
-        lpAsynIoOperation->GetCompletedObject(1, IID_INetmsg, (void **)&spNetmsg);
+        lpAsynIoOperation->GetCompletedObject(1, IID_INetmsg, (IUnknown**)&spNetmsg);
         spNetmsg->Getline(&Status, &Params, 0, 0 );
         status = string_from_STRING(Status);
         params = string_from_STRING(Params);
@@ -226,7 +226,7 @@ HRESULT CFtpxDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsy
             SetEvent(m_hNotify);
             return E_NOTIMPL;
         }
-        lpAsynIoOperation->GetCompletedObject(1, IID_INetmsg, (void **)&spNetmsg);
+        lpAsynIoOperation->GetCompletedObject(1, IID_INetmsg, (IUnknown**)&spNetmsg);
         spNetmsg->Getline(&Status, &Params, 0, 0 );
         status = string_from_STRING(Status);
         params = string_from_STRING(Params);
@@ -256,7 +256,7 @@ HRESULT CFtpxDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsy
         SetEvent(m_hNotify);
         return E_NOTIMPL;
     }
-    lpAsynIoOperation->GetCompletedObject(1, IID_INetmsg, (void **)&spNetmsg);
+    lpAsynIoOperation->GetCompletedObject(1, IID_INetmsg, (IUnknown**)&spNetmsg);
     spNetmsg->Getline(&Status, &Params, 0, 0 );
     status = string_from_STRING(Status);
     params = string_from_STRING(Params);
@@ -346,7 +346,7 @@ HRESULT CFtpxDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsy
             SetEvent(m_hNotify);
             return E_NOTIMPL;
         }
-        lpAsynIoOperation->GetCompletedObject(1, IID_INetmsg, (void **)&spNetmsg);
+        lpAsynIoOperation->GetCompletedObject(1, IID_INetmsg, (IUnknown**)&spNetmsg);
         spNetmsg->Getline(&Status, &Params, 0, 0 );
         status = string_from_STRING(Status);
         params = string_from_STRING(Params);
@@ -372,7 +372,7 @@ HRESULT CFtpxDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsy
         printf("accept data connection from %s:%d\n", host.m_val.c_str(), port);
 
         //设置接收数据速度: B/s
-        lpAsynIoOperation->GetCompletedObject(1, IID_IAsynTcpSocket, (void **)&m_spDataTcpSocket);
+        lpAsynIoOperation->GetCompletedObject(1, IID_IAsynTcpSocket, (IUnknown**)&m_spDataTcpSocket);
         asynsdk::SetSpeedController(m_spDataTcpSocket, Io_recv, -1, m_spSpeedController);
     }
     else
@@ -386,7 +386,7 @@ HRESULT CFtpxDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsy
             SetEvent(m_hNotify);
             return E_NOTIMPL;
         }
-        lpAsynIoOperation->GetCompletedObject(1, IID_INetmsg, (void **)&spNetmsg);
+        lpAsynIoOperation->GetCompletedObject(1, IID_INetmsg, (IUnknown**)&spNetmsg);
         spNetmsg->Getline(&Status, &Params, 0, 0 );
         status = string_from_STRING(Status);
         params = string_from_STRING(Params);
@@ -535,7 +535,7 @@ HRESULT CFtpxDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsy
             SetEvent(m_hNotify);
             return E_NOTIMPL;
         }
-        lpAsynIoOperation->GetCompletedObject(1, IID_INetmsg, (void **)&spNetmsg);
+        lpAsynIoOperation->GetCompletedObject(1, IID_INetmsg, (IUnknown**)&spNetmsg);
         spNetmsg->Getline(&Status, &Params, 0, 0 );
         status = string_from_STRING(Status);
         params = string_from_STRING(Params);
@@ -568,7 +568,7 @@ HRESULT CFtpxDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsy
             SetEvent(m_hNotify);
             return E_NOTIMPL;
         }
-        lpAsynIoOperation->GetCompletedObject(1, IID_INetmsg, (void **)&spNetmsg);
+        lpAsynIoOperation->GetCompletedObject(1, IID_INetmsg, (IUnknown**)&spNetmsg);
         spNetmsg->Getline(&Status, &Params, 0, 0 );
         status = string_from_STRING(Status);
         params = string_from_STRING(Params);
@@ -595,7 +595,7 @@ HRESULT CFtpxDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsy
     m_spAsynFrameThread->CreateAsynIoBridge(m_spDataTcpSocket, spAsynFile, 0, &m_spAsynIoBridge);
     if( m_startpos )
     {
-        CComPtr<IAsynFileIoOperation> spAsynIoOperation; m_spAsynIoBridge->Get(BT_GetTargetIoOperation, 0, IID_IAsynFileIoOperation, (void**)&spAsynIoOperation);
+        CComPtr<IAsynFileIoOperation> spAsynIoOperation; m_spAsynIoBridge->Get(BT_GetTargetIoOperation, 0, IID_IAsynFileIoOperation, (IUnknown**)&spAsynIoOperation);
         spAsynIoOperation->SetPosition(m_startpos); //设置开始写入数据时文件的偏移
         m_datasize -= m_startpos;
     }
@@ -610,7 +610,7 @@ HRESULT CFtpxDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsy
         SetEvent(m_hNotify);
         return E_NOTIMPL;
     }
-    lpAsynIoOperation->GetCompletedObject(1, IID_INetmsg, (void **)&spNetmsg);
+    lpAsynIoOperation->GetCompletedObject(1, IID_INetmsg, (IUnknown**)&spNetmsg);
     spNetmsg->Getline(&Status, &Params, 0, 0 );
     status = string_from_STRING(Status);
     params = string_from_STRING(Params);
@@ -638,7 +638,7 @@ HRESULT CFtpxDownloader::OnEventNotify( uint64_t lParam1, uint64_t lParam2, IAsy
     }
     else
     {
-        CComPtr<IAsynFileIoOperation> spAsynIoOperation; m_spAsynIoBridge->Get(BT_GetTargetIoOperation, 0, IID_IAsynFileIoOperation, (void **)&spAsynIoOperation);
+        CComPtr<IAsynFileIoOperation> spAsynIoOperation; m_spAsynIoBridge->Get(BT_GetTargetIoOperation, 0, IID_IAsynFileIoOperation, (IUnknown**)&spAsynIoOperation);
         spAsynIoOperation->GetPosition(&m_startpos );
         lpAsynIoOperation->GetOpParams( 0, 0, &lParam1);
 
