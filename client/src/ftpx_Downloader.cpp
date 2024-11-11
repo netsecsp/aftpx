@@ -275,7 +275,7 @@ HRESULT CFtpxDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsy
             m_spAsynNetwork->CreateAsynTcpSocketListener(0, &spDataTcpSocketListener);
             if( m_prxyname == "socks" )
             {
-                std::string ver = m_setsfile.get_string("proxy", "version");
+                std::string ver = m_setsfile.getString("proxy.version");
                 if(!ver.empty())
                     ver.insert(0, "/");
 
@@ -285,8 +285,8 @@ HRESULT CFtpxDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsy
                 CComPtr<IAsynProxySocket> spProxy;
                 spAsynTmpSocket->QueryInterface(IID_IAsynProxySocket, (void **)&spProxy);
                 asynsdk::CKeyvalSetter    params(1);
-                params.Set(STRING_from_string(";account"), 1, STRING_from_string(m_setsfile.get_string("proxy", "user") + ":" + m_setsfile.get_string("proxy", "password")));
-                HRESULT r1 = spProxy->SetProxyContext(STRING_from_string(m_setsfile.get_string("proxy", "host", "127.0.0.1")), (PORT)m_setsfile.get_long("proxy", "port", 1080), STRING_from_string(m_setsfile.get_string("proxy", "method", "")), &params);
+                params.Set(STRING_from_string(";account"), 1, STRING_from_string(m_setsfile.getString("proxy.user") + ":" + m_setsfile.getString("proxy.password")));
+                HRESULT r1 = spProxy->SetProxyContext(STRING_from_string(m_setsfile.getString("proxy.host", "127.0.0.1")), (PORT)m_setsfile.getNumber("proxy.port", 1080), STRING_from_string(m_setsfile.getString("proxy.method", "")), &params);
 
                 spDataTcpSocketListener = 0;
                 spProxy->QueryInterface(IID_IAsynTcpSocketListener, (void **)&spDataTcpSocketListener);
@@ -295,7 +295,7 @@ HRESULT CFtpxDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsy
             if( m_bssl )
             {
                 CComPtr<IAsynRawSocket  > spAsynTmpSocket;
-                m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("ssl"), spDataTcpSocketListener, 0, STRING_from_string(m_setsfile.get_string("ssl", "algo", "tls/1.0")), &spAsynTmpSocket);
+                m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("ssl"), spDataTcpSocketListener, 0, STRING_from_string(m_setsfile.getString("ssl.algo", "tls/1.0")), &spAsynTmpSocket);
                 spAsynTmpSocket->QueryInterface(IID_IAsynTcpSocketListener, (void **)&m_spDataTcpSocketListener);
             }
             else
@@ -459,11 +459,11 @@ HRESULT CFtpxDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsy
             }
             else
             {// http/socks.proxy
-                std::string ver = m_setsfile.get_string("proxy", "version");
+                std::string ver = m_setsfile.getString("proxy.version");
                 if(!ver.empty())
                     ver.insert(0, "/");
 
-                std::string ssl = m_prxyname == "socks"? "" : m_setsfile.get_string("proxy", "ssl");
+                std::string ssl = m_prxyname == "socks"? "" : m_setsfile.getString("proxy.ssl");
                 if(!ssl.empty())
                     ssl.insert(0, ":");
 
@@ -476,23 +476,23 @@ HRESULT CFtpxDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsy
                 spDataTcpSocket->QueryInterface(IID_IAsynProxySocket, (void **)&spProxy);
 
                 asynsdk::CKeyvalSetter    params(1);
-                params.Set(STRING_from_string(";account"), 0, STRING_from_string(m_setsfile.get_string("proxy", "user") + ":" + m_setsfile.get_string("proxy", "password")));
+                params.Set(STRING_from_string(";account"), 0, STRING_from_string(m_setsfile.getString("proxy.user") + ":" + m_setsfile.getString("proxy.password")));
                 if( m_prxyname == "http" )
                 {
                     CComPtr<IHttpTxTunnel> spDataTxTunnel; spProxy->QueryInterface(IID_IHttpTxTunnel, (void **)&spDataTxTunnel);
                     spDataTxTunnel->SetEnabled(1); //强制直接代理
 
-                    spProxy->SetProxyContext(STRING_from_string(m_setsfile.get_string("proxy", "host", "127.0.0.1")), (PORT)m_setsfile.get_long("proxy", "port", 8080), STRING_from_string(m_setsfile.get_string("proxy", "method", "")), &params);
+                    spProxy->SetProxyContext(STRING_from_string(m_setsfile.getString("proxy.host", "127.0.0.1")), (PORT)m_setsfile.getNumber("proxy.port", 8080), STRING_from_string(m_setsfile.getString("proxy.method", "")), &params);
                 }
                 else
                 {
-                    spProxy->SetProxyContext(STRING_from_string(m_setsfile.get_string("proxy", "host", "127.0.0.1")), (PORT)m_setsfile.get_long("proxy", "port", 1080), STRING_from_string(m_setsfile.get_string("proxy", "method", "")), &params);
+                    spProxy->SetProxyContext(STRING_from_string(m_setsfile.getString("proxy.host", "127.0.0.1")), (PORT)m_setsfile.getNumber("proxy.port", 1080), STRING_from_string(m_setsfile.getString("proxy.method", "")), &params);
                 }
             }
 
             if( m_bssl )
             {
-                m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("ssl"), spDataTcpSocket, 0, STRING_from_string(m_setsfile.get_string("ssl", "algo", "tls/1.0")), &m_spDataTcpSocket);
+                m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("ssl"), spDataTcpSocket, 0, STRING_from_string(m_setsfile.getString("ssl.algo", "tls/1.0")), &m_spDataTcpSocket);
             }
             else
             {
@@ -510,7 +510,7 @@ HRESULT CFtpxDownloader::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsy
             m_prxyname == "ftp" )
             printf("start to connect %s:%d\n", host.m_val.c_str(), port);
         else
-            printf("start to connect %s:%d via %s-proxyserver[%s]\n", host.m_val.c_str(), port, m_prxyname.c_str(), m_setsfile.get_string("proxy", "host", "127.0.0.1").c_str());
+            printf("start to connect %s:%d via %s-proxyserver[%s]\n", host.m_val.c_str(), port, m_prxyname.c_str(), m_setsfile.getString("proxy.host", "127.0.0.1").c_str());
 
         crReturn(spAsynTcpSocket->Connect(STRING_from_string(host.m_val), port, 0, lpAsynIoOperation, 5000)); //必须使用异步连接
         if( lErrorCode != NO_ERROR )

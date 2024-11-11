@@ -36,15 +36,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <frame/AsynFile.h>
 #include <frame/asm/INet.h>
 #include "Tranfile.h"
-#include "setting.h"
 using namespace asynsdk;
 
 class CService : public asyn_message_events_impl
 {
 public:
-    CService(InstancesManager *lpInstanceManager, setting &configure, IAsynFrameThread *lpAsynFrameThread, uint32_t af = AF_INET)
-        : m_af(af), m_setsfile(configure)
+    CService(InstancesManager *lpInstanceManager, IAsynFrameThread *lpAsynFrameThread, uint32_t af = AF_INET)
+      : m_af(af)
     {
+        m_setsfile.from(lpInstanceManager);
         m_spInstanceManager = lpInstanceManager;
         m_spAsynFrameThread = lpAsynFrameThread;
         m_spInstanceManager->GetInstance(STRING_from_string(IN_AsynNetwork), IID_IAsynNetwork, (IUnknown **)&m_spAsynNetwork);
@@ -72,11 +72,11 @@ public:
         CComPtr<IObjectHolder   > spObjectHolder;
         m_spAsynNetwork->QueryInterface(IID_IObjectHolder, (void **)&spObjectHolder);
         spObjectHolder->Get(Io_send, 0, IID_ISpeedController, (IUnknown **)&spGlobalSpeedController);
-        spGlobalSpeedController->SetMaxSpeed(m_setsfile.get_long("globals", "max_sendspeed", -1));
+        spGlobalSpeedController->SetMaxSpeed(m_setsfile.getNumber("globals.max_sendspeed", -1));
 
-        if( m_setsfile.is_exist("ssl", "cert"))
+        if( m_setsfile.hasExist("ssl.cert"))
         {// for ssl
-            const std::string &file = m_setsfile.get_string("ssl", "cert");
+            const std::string &file = m_setsfile.getString("ssl.cert");
             FILE *f = 0; errno_t hr = fopen_s(&f, file.c_str(), "rb");
             if( f )
             {
@@ -86,7 +86,7 @@ public:
                 if( size > 0 )
                 {
                     m_cert_p12.assign((char*)temp, size);
-                    m_password = m_setsfile.get_string("ssl", "password");
+                    m_password = m_setsfile.getString("ssl", "password");
                 }
             }
             else
@@ -97,7 +97,7 @@ public:
 
         CComPtr<IThreadPool> threadpool; asynsdk::CreateObject(m_spInstanceManager, "iosthreadpool?t=1&size=4", 0, PT_FixedThreadpool, IID_IThreadPool, (IUnknown**)&threadpool);
 
-        PORT tcpport = (PORT)m_setsfile.get_long("tcp", "port", 21);
+        PORT tcpport = (PORT)m_setsfile.getNumber("tcp.port", 21);
         if( tcpport )
         {// check [tcp]: 普通ftp 或 显式ftp over tls
             CComPtr<IAsynTcpSocketListener> spAsynInnSocketListener;
@@ -126,7 +126,7 @@ public:
             printf("tcp.listen *:%-4d[%s]\n", tcpport, m_af == AF_INET? "ipv4" : "ipv6");
         }
 
-        PORT sslport = (PORT)m_setsfile.get_long("ssl", "port", 990);
+        PORT sslport = (PORT)m_setsfile.getNumber("ssl.port", 990);
         if(!m_cert_p12.empty() &&
             sslport )
         {// check [ssl]: 隐式ftp over tls
@@ -134,7 +134,7 @@ public:
             m_spAsynNetwork->CreateAsynTcpSocketListener(0, &spAsynInnSocketListener);
 
             CComPtr<IAsynRawSocket        > spAsynSslSocket;
-            m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("ssl"), spAsynInnSocketListener, 0, STRING_from_string(m_setsfile.get_string("ssl", "algo", "tls/1.0")), &spAsynSslSocket);
+            m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("ssl"), spAsynInnSocketListener, 0, STRING_from_string(m_setsfile.getString("ssl.algo", "tls/1.0")), &spAsynSslSocket);
             if( spAsynSslSocket == NULL )
             {
                 printf("can't load plugin: ssl\n");
@@ -142,7 +142,7 @@ public:
             }
 
             CComPtr<IAsynRawSocket        > spAsynPtlSocket;
-            m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("ftp"), spAsynSslSocket, 0, STRING_from_string(m_setsfile.get_string("ssl", "algo", "tls/1.0")), &spAsynPtlSocket);
+            m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("ftp"), spAsynSslSocket, 0, STRING_from_string(m_setsfile.getString("ssl.algo", "tls/1.0")), &spAsynPtlSocket);
             if( spAsynPtlSocket == NULL )
             {
                 printf("can't load plugin: ftp\n");
@@ -197,7 +197,8 @@ protected:
     CComPtr<IAsynFrame      > m_spAsynFrame;
     CComPtr<IAsynNetwork    > m_spAsynNetwork;
     CComPtr<IAsynFileSystem > m_spAsynFileSystem;
-    setting                  &m_setsfile;
+
+    asynsdk::CSetting m_setsfile;
 
     std::string m_cert_p12;
     std::string m_password;

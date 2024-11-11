@@ -54,7 +54,7 @@ HRESULT CService::OnQueryResult( uint64_t lparam1, uint64_t lparam2, IKeyvalSett
         certandpasswd[0] = STRING_from_string(m_cert_p12);
         certandpasswd[1] = STRING_from_string(m_password);
         pSsl->SetCryptContext(0, 0, certandpasswd);
-        ppKeyval[0]->Set(STRING_from_string(";version"), 0, STRING_from_string(m_setsfile.get_string("ssl", "algo", "tls/1.0")));
+        ppKeyval[0]->Set(STRING_from_string(";version"), 0, STRING_from_string(m_setsfile.getString("ssl.algo", "tls/1.0")));
         return S_OK;
     }
 
@@ -247,8 +247,8 @@ HRESULT CService::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoOper
             if( method == "PASS")
             {
                 if( params.empty() != false ||
-                    m_setsfile.is_exist(info->user, "home") == false || //没有配置用户帐号
-                    info->user != "anonymous" && m_setsfile.get_string(info->user, "password") != params )   //密码错误
+                    m_setsfile.hasExist(info->user + ".home") == false || //没有配置用户帐号
+                    info->user != "anonymous" && m_setsfile.getString(info->user, "password") != params )   //密码错误
                 {
                     info->spCtrlTcpSocket->SendPacket(STRING_from_string("530"), STRING_from_string("User can't login."), 0, 0);
                     return info->spCtrlTcpSocket->Read(lpAsynIoOperation);
@@ -257,15 +257,15 @@ HRESULT CService::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoOper
                 info->spCtrlTcpSocket->SendPacket(STRING_from_string("203"), STRING_from_string("Login successful."), 0, 0);
 
                 //初始化用户的主目录
-                info->root = m_setsfile.get_string(info->user, "home");
+                info->root = m_setsfile.getString(info->user, "home");
                 info->path = "/"; //根目录
                 info->mode = "A"; //传输类型
 
                 //控制数据连接速度: B/s
                 m_spInstanceManager->NewInstance(0, 0, IID_ISpeedController, (IUnknown **)&info->spDataSpeedController[Io_recv]);
                 m_spInstanceManager->NewInstance(0, 0, IID_ISpeedController, (IUnknown **)&info->spDataSpeedController[Io_send]);
-                info->spDataSpeedController[Io_recv]->SetMaxSpeed(m_setsfile.get_long(info->user, "max_recvspeed", -1));
-                info->spDataSpeedController[Io_send]->SetMaxSpeed(m_setsfile.get_long(info->user, "max_sendspeed", -1));
+                info->spDataSpeedController[Io_recv]->SetMaxSpeed(m_setsfile.getNumber(info->user + ".max_recvspeed", -1));
+                info->spDataSpeedController[Io_send]->SetMaxSpeed(m_setsfile.getNumber(info->user + ".max_sendspeed", -1));
                 return info->spCtrlTcpSocket->Read(lpAsynIoOperation);
             }
 
@@ -382,7 +382,7 @@ HRESULT CService::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoOper
             }
 
             if( method == "PROT" &&
-                m_setsfile.get_long("ssl", "prot", 1)) //for curl client
+                m_setsfile.getNumber("ssl.prot", 1)) //for curl client
             {
                 info->spCtrlTcpSocket->SendPacket(STRING_from_string("200"), STRING_from_string("OK"), 0, 0);
                 info->prot = params;
@@ -403,7 +403,7 @@ HRESULT CService::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoOper
                 if( info->prot == "P" )
                 {
                      CObjPtr<IAsynRawSocket> spAsynSslSocket;
-                     m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("ssl"), spAsynTcpSocketListener, 0, STRING_from_string(m_setsfile.get_string("ssl", "algo", "tls/1.0")), &spAsynSslSocket.p);
+                     m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("ssl"), spAsynTcpSocketListener, 0, STRING_from_string(m_setsfile.getString("ssl.algo", "tls/1.0")), &spAsynSslSocket.p);
                      spAsynSslSocket->QueryInterface(IID_IAsynTcpSocketListener, (void**)&info->spDataTcpSocketListener);
                 }
                 else
@@ -443,7 +443,7 @@ HRESULT CService::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoOper
                 if( info->prot == "P" )
                 {
                      CObjPtr<IAsynRawSocket> spAsynSslSocket;
-                     m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("ssl"), spAsynTcpSocketListener, 0, STRING_from_string(m_setsfile.get_string("ssl", "algo", "tls/1.0")), &spAsynSslSocket.p);
+                     m_spAsynNetwork->CreateAsynPtlSocket(STRING_from_string("ssl"), spAsynTcpSocketListener, 0, STRING_from_string(m_setsfile.getString("ssl.algo", "tls/1.0")), &spAsynSslSocket.p);
                      spAsynSslSocket->QueryInterface(IID_IAsynTcpSocketListener, (void**)&info->spDataTcpSocketListener);
                 }
                 else

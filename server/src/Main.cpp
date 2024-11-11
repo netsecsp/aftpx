@@ -111,15 +111,8 @@ int _tmain(int argc, _TCHAR *argv[])
         return 0;
     }
 
-    setting configure(file);
-
-    if( configure.m_sections.empty())
-    {
-        ShowUsage(argv[0]);
-        return 0;
-    }
-
-    if( Initialize(NULL, NULL) != NO_ERROR )
+    asynsdk::CStringSetter fileconf(1, file);
+    if( Initialize(NULL,&fileconf) != NO_ERROR )
     {
         printf("fail to Initialize asynframe\n");
         return 0;
@@ -138,7 +131,7 @@ int _tmain(int argc, _TCHAR *argv[])
         CComPtr<IAsynFrameThread> spAsynFrameThread;
         lpInstancesManager->NewInstance(0, TC_Iocp, IID_IAsynFrameThread, (IUnknown **)&spAsynFrameThread);
 
-        std::unique_ptr<CService> pService(new CService(lpInstancesManager, configure, spAsynFrameThread, ipvx));
+        std::unique_ptr<CService> pService(new CService(lpInstancesManager, spAsynFrameThread, ipvx));
         if( pService->Start() )
         {
             while(!_kbhit())
