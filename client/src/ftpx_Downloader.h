@@ -259,7 +259,7 @@ public:
 
     bool Start(std::string url)
     {// url格式， protocol://[user:password@]host[:port]/path/[;parameters][?query]#fragment
-        if( m_spInstanceManager->Require(STRING_from_string(IN_AsynFileSystem)) != S_OK )
+        if( CHECK_NO(m_spInstanceManager->Require(STRING_from_string(IN_AsynFileSystem), 0)))
         {
             printf("can't load plugin: %s\n", IN_AsynFileSystem);
             return false;
