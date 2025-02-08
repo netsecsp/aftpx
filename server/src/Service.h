@@ -86,7 +86,7 @@ public:
                 if( size > 0 )
                 {
                     m_cert_p12.assign((char*)temp, size);
-                    m_password = m_setsfile.getString("ssl", "password");
+                    m_password = m_setsfile.getString("ssl.password");
                 }
             }
             else

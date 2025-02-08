@@ -248,7 +248,7 @@ HRESULT CService::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoOper
             {
                 if( params.empty() != false ||
                     m_setsfile.hasExist(info->user + ".home") == false || //没有配置用户帐号
-                    info->user != "anonymous" && m_setsfile.getString(info->user, "password") != params )   //密码错误
+                    info->user != "anonymous" && m_setsfile.getString(info->user + ".password") != params )   //密码错误
                 {
                     info->spCtrlTcpSocket->SendPacket(STRING_from_string("530"), STRING_from_string("User can't login."), 0, 0);
                     return info->spCtrlTcpSocket->Read(lpAsynIoOperation);
@@ -257,7 +257,7 @@ HRESULT CService::OnIomsgNotify( uint64_t lParam1, uint64_t lAction, IAsynIoOper
                 info->spCtrlTcpSocket->SendPacket(STRING_from_string("203"), STRING_from_string("Login successful."), 0, 0);
 
                 //初始化用户的主目录
-                info->root = m_setsfile.getString(info->user, "home");
+                info->root = m_setsfile.getString(info->user + ".home");
                 info->path = "/"; //根目录
                 info->mode = "A"; //传输类型
 
